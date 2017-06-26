@@ -36,8 +36,8 @@ o2 = O2_Sensor(SN='your_serial_no')
 # read a single measurement
 o2.read()
 
-# read multiple measurements
-o2.read_multi()
+# read 5 measurements, 1.3 seconds apart
+o2.read_multi(n=5, wait=1.3)
 
 # write the last read values to csv file
 o2.write('pyro_data.csv')
@@ -65,3 +65,5 @@ ls -l | grep usb
 ```
 
 This should return 2 entries, the end of which is the serial number of the sensor. It doesn't actually have to be the serial number - just a unique string which identifies the sensor in the list of tty entries in /dev.
+
+It's possible that this won't work. If you don't see anything the second time, try removing ``| grep usb``. You'll be presented with a long list of files, and you'll need to identify the one that appears / disappears when you connect / disconnect the sensor.
