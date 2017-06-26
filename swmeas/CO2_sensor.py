@@ -19,7 +19,8 @@ class CO2_sensor(object):
     def __init__(self, SN='FTHBSQZ9', msg=b"\xFE\x44\x00\x08\x02\x9F\x25"):
         self.SN = SN
         self.msg = msg
-        self.sensor = self.connect()
+        self.connect()
+        return
 
     def connect(self):
         """
@@ -35,11 +36,12 @@ class CO2_sensor(object):
               "K-30 CO2 meter (SN: {})\n".format(self.SN) +
               "********************" + '*' * len(self.SN) + '\n')
 
-        return serial.Serial(mpath, baudrate=9600, timeout=.5)
+        self.sensor = serial.Serial(mpath, baudrate=9600, timeout=.5)
+        return
 
-    def read_CO2(self):
+    def read(self):
         """
-        Read CO2 measurement from sensor.
+        Read a single CO2 measurement from the sensor.
 
         Returns
         -------
@@ -54,7 +56,7 @@ class CO2_sensor(object):
         co2 = (high * 256.) + low
         return co2
 
-    def read_multi_CO2(self, n, wait=2.):
+    def read_multi(self, n, wait=2.):
         """
         Read multiple CO2 measurements from sensor.
 
@@ -71,7 +73,7 @@ class CO2_sensor(object):
         """
         out = []
         for i in xrange(n):
-            out.append(self.read_CO2())
+            out.append(self.read())
             time.sleep(wait)
         return out
 
@@ -109,9 +111,10 @@ class CO2_sensor(object):
 
     def disconnect(self):
         """
-        Close connection to sensor. Shouldn't be necessary.
+        Close connection to sensor (shouldn't be necessary).
         """
         self.sensor.close()
+        return
 
 
 if __name__ == '__main__':
