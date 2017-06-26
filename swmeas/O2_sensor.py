@@ -151,42 +151,9 @@ class O2_sensor(object):
         self.last_read = out
         return out
 
-    # def read_TempO2(self, n=5, wait=1., P=1013000, S=35000):
-    #     """
-    #     Read Temp and O2 from the sensor.
-
-    #     Parameters
-    #     ----------
-    #     n : int
-    #         Number of measurements
-    #     wait : float
-    #         Seconds between measurements
-    #     P : int
-    #         Pressure in ubar (for gas readings).
-    #     S : int
-    #         Salinity in mg/L (for liquid readings).
-
-    #     Returns
-    #     -------
-    #     An list of n items, each containing 3 variables:
-    #         0: Time
-    #         1: Temp (C)
-    #         2: O2 (%O2)
-    #     """
-
-    #     if n > 1:
-    #         read = self.read_multi(n=n, wait=wait, P=P, S=S)
-    #         Time = [r[0] for r in read]
-    #         Temp = [r[6] / 1000. for r in read]
-    #         O2 = [r[13] / 1000. for r in read]
-    #         return Time, Temp, O2
-    #     else:
-    #         read = self.read(P=P, S=S)
-    #         return [read[0] / 1000.], [read[6] / 1000.], [read[13] / 1000.]
-
     def write_TempO2_batch(self, Tpath='Temp.csv', O2path='O2.csv'):
         """
-        Write last read Temp and O2 to separate files in useful units.
+        Write last read batches of Temp and O2 to separate files in useful units.
         """
         if isinstance(self.last_read[0], list):
             Time = [r[0] for r in self.last_read]
@@ -219,37 +186,21 @@ class O2_sensor(object):
             of.write(O2str)
         return
 
-    # def write_TempO2(self, Tpath='Temp.csv', O2path='O2.csv', n=5, wait=2., P=1013000, S=35000):
-    #     Time, Temp, O2 = self.readTempO2(n=n, wait=wait, P=P, S=S)
-    #     # format data
-    #     if len(Time) == 1:
-    #         Tstr = Time + ',{:.2f}'.format(Temp)
-    #         O2str = Time + ',{:.2f}'.format(O2)
-    #     else:
-    #         Tstr = Time + ',' + ','.join(['{:.2f}'.format(t) for t in Temp])
-    #         O2str = Time + ',' + ','.join(['{:.2f}'.format(o) for o in O2])
-    #     # write data
-    #     with open(Tpath, 'a+') as tf:
-    #         tf.write(Tstr)
-    #     with open(O2path, 'a+') as of:
-    #         of.write(O2str)
-    #     return
-
-    def write(self, file, n=5, wait=2., P=1013000, S=35000):
+    def write(self, path):
         """
         Write last read data to file.
         """
         # if file doesn't already exist, write column names in a header
-        if not os.path.exists(file):
-            with open(file, 'a+') as f:
-                f.write('# time,loop,status,dphi,umolar,mbar,airSat,tempSample,tempCase,signalIntensity,ambientLight,pressure,humidity,resistorTemp,percentO2\n')
+        if not os.path.exists(path):
+            with open(path, 'a+') as f:
+                f.write('# time,status,dphi,umolar,mbar,airSat,tempSample,tempCase,signalIntensity,ambientLight,pressure,humidity,resistorTemp,percentO2\n')
         # write data
         if isinstance(self.last_read[0], list):
-            with open(file, 'a+') as f:
+            with open(path, 'a+') as f:
                 for r in self.last_read:
                     f.write(fmt(r, 1, ',') + '\n')
         else:
-            with open(file, 'a+') as f:
+            with open(path, 'a+') as f:
                 f.write(fmt(self.last_read, 1, ',') + '\n')
         return
 
