@@ -1,7 +1,8 @@
+import os
 import glob
 import serial
 import time
-import numpy as np
+from swhelpers import fmt
 
 
 class O2_sensor(object):
@@ -64,20 +65,24 @@ class O2_sensor(object):
         Returns
         -------
         List of:
-            0: status
-            1: dphi (m)
-            2: umolar (nmol / L, liquid only)
-            3: mbar (ubar, liquid & gas)
-            4: airSat (e-3 % air sat, liquid only)
-            5: tempSample (e-3 C)
-            6: tempCase (e-3 C)
-            7: signalIntensity (uV)
-            8: ambientLight (uV)
-            9: pressure (not returned)
-            10: humidity (not returned)
-            11: resistorTemp (mOhm (uV))
-            12: percentO2 (e-3 %O2)
+            0: Time at start of measurement
+            1: status
+            2: dphi (m)
+            3: umolar (nmol / L, liquid only)
+            4: mbar (ubar, liquid & gas)
+            5: airSat (e-3 % air sat, liquid only)
+            6: tempSample (e-3 C)
+            7: tempCase (e-3 C)
+            8: signalIntensity (uV)
+            9: ambientLight (uV)
+            10: pressure (not returned)
+            11: humidity (not returned)
+            12: resistorTemp (mOhm (uV))
+            13: percentO2 (e-3 %O2)
         """
+        # get time at start of measurement
+        tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
+
         # measure Temp
         self.sensor.write('TMP 1\r')
         self.sensor.readline()
@@ -103,7 +108,8 @@ class O2_sensor(object):
         res = res.replace('RAL 1 ', '').rstrip()
         res = [int(r) for r in res.split(' ')]
 
-        return res
+        self.last_read = [tnow] + res
+        return [tnow] + res
 
     def read_multi(self, n, wait=1., P=1013000, S=35000):
         """
@@ -122,33 +128,130 @@ class O2_sensor(object):
 
         Returns
         -------
-        numpy array of dimensions (n, 13), where the second index term corresponds to:
-            0: status
-            1: dphi (m)
-            2: umolar (nmol / L, liquid only)
-            3: mbar (ubar, liquid & gas)
-            4: airSat (e-3 % air sat, liquid only)
-            5: tempSample (e-3 C)
-            6: tempCase (e-3 C)
-            7: signalIntensity (uV)
-            8: ambientLight (uV)
-            9: pressure (not returned)
-            10: humidity (not returned)
-            11: resistorTemp (mOhm (uV))
-            12: percentO2 (e-3 %O2)
+        An list of n items, each containing 14 variables:
+            0: Time at start of measurement
+            1: status
+            2: dphi (m)
+            3: umolar (nmol / L, liquid only)
+            4: mbar (ubar, liquid & gas)
+            5: airSat (e-3 % air sat, liquid only)
+            6: tempSample (e-3 C)
+            7: tempCase (e-3 C)
+            8: signalIntensity (uV)
+            9: ambientLight (uV)
+            10: pressure (not returned)
+            11: humidity (not returned)
+            12: resistorTemp (mOhm (uV))
+            13: percentO2 (e-3 %O2)
         """
         out = []
         for i in xrange(n):
             out.append(self.read(P=P, S=S))
             time.sleep(wait)
-        return np.array(out, dtype=float)
+        self.last_read = out
+        return out
 
-    def readTempO2(self, n=5, wait=1., P=1013000, S=35000):
-        if n > 1:
-            read = self.read_multi(n=n, wait=wait, P=P, S=S)
+    # def read_TempO2(self, n=5, wait=1., P=1013000, S=35000):
+    #     """
+    #     Read Temp and O2 from the sensor.
+
+    #     Parameters
+    #     ----------
+    #     n : int
+    #         Number of measurements
+    #     wait : float
+    #         Seconds between measurements
+    #     P : int
+    #         Pressure in ubar (for gas readings).
+    #     S : int
+    #         Salinity in mg/L (for liquid readings).
+
+    #     Returns
+    #     -------
+    #     An list of n items, each containing 3 variables:
+    #         0: Time
+    #         1: Temp (C)
+    #         2: O2 (%O2)
+    #     """
+
+    #     if n > 1:
+    #         read = self.read_multi(n=n, wait=wait, P=P, S=S)
+    #         Time = [r[0] for r in read]
+    #         Temp = [r[6] / 1000. for r in read]
+    #         O2 = [r[13] / 1000. for r in read]
+    #         return Time, Temp, O2
+    #     else:
+    #         read = self.read(P=P, S=S)
+    #         return [read[0] / 1000.], [read[6] / 1000.], [read[13] / 1000.]
+
+    def write_TempO2_batch(self, Tpath='Temp.csv', O2path='O2.csv'):
+        """
+        Write last read Temp and O2 to separate files in useful units.
+        """
+        if isinstance(self.last_read[0], list):
+            Time = [r[0] for r in self.last_read]
+            Temp = [r[6] / 1000. for r in self.last_read]
+            O2 = [r[13] / 1000. for r in self.last_read]
+            Tstr = fmt([Time[0]] + Temp, 2, ',') + '\n'
+            # Time[0] + ',' + ','.join(['{:.2f}'.format(t) for t in Temp]) + '\n'
+            O2str = fmt([Time[0]] + O2, 2, ',') + '\n'
+            # Time[0] + ',' + ','.join(['{:.2f}'.format(o) for o in O2]) + '\n'
         else:
-            read = np.array(self.read(P=P, S=S), ndmin=1, dtype=float)
-        return read[:, 5] / 1000., read[:, 12] / 1000.
+            Time = [self.last_read[0] / 1000.]
+            Temp = [self.last_read[6] / 1000.]
+            O2 = [self.last_read[13] / 1000.]
+            Tstr = fmt(Time + Temp, 2, ',') + '\n'
+            # Time + ',' + ','.join(['{:.2f}'.format(t) for t in Temp]) + '\n'
+            O2str = fmt(Time + O2, 2, ',') + '\n'
+            # Time + ',' + ','.join(['{:.2f}'.format(o) for o in O2]) + '\n'
+        # create headers, if files don't exist
+        if not os.path.exists(Tpath):
+            with open(Tpath, 'a+') as f:
+                f.write('# Time,Temperature (C)\n')
+        if not os.path.exists(O2path):
+            with open(O2path, 'a+') as f:
+                f.write('# Time,O2 (% Sat)\n')
+
+        # write data
+        with open(Tpath, 'a+') as tf:
+            tf.write(Tstr)
+        with open(O2path, 'a+') as of:
+            of.write(O2str)
+        return
+
+    # def write_TempO2(self, Tpath='Temp.csv', O2path='O2.csv', n=5, wait=2., P=1013000, S=35000):
+    #     Time, Temp, O2 = self.readTempO2(n=n, wait=wait, P=P, S=S)
+    #     # format data
+    #     if len(Time) == 1:
+    #         Tstr = Time + ',{:.2f}'.format(Temp)
+    #         O2str = Time + ',{:.2f}'.format(O2)
+    #     else:
+    #         Tstr = Time + ',' + ','.join(['{:.2f}'.format(t) for t in Temp])
+    #         O2str = Time + ',' + ','.join(['{:.2f}'.format(o) for o in O2])
+    #     # write data
+    #     with open(Tpath, 'a+') as tf:
+    #         tf.write(Tstr)
+    #     with open(O2path, 'a+') as of:
+    #         of.write(O2str)
+    #     return
+
+    def write(self, file, n=5, wait=2., P=1013000, S=35000):
+        """
+        Write last read data to file.
+        """
+        # if file doesn't already exist, write column names in a header
+        if not os.path.exists(file):
+            with open(file, 'a+') as f:
+                f.write('# time,loop,status,dphi,umolar,mbar,airSat,tempSample,tempCase,signalIntensity,ambientLight,pressure,humidity,resistorTemp,percentO2\n')
+        # write data
+        if isinstance(self.last_read[0], list):
+            with open(file, 'a+') as f:
+                for r in self.last_read:
+                    f.write(fmt(r, 1, ',') + '\n')
+        else:
+            with open(file, 'a+') as f:
+                f.write(fmt(self.last_read, 1, ',') + '\n')
+        return
 
     def power_off(self):
         """

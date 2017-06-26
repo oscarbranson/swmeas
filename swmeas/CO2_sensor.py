@@ -1,7 +1,8 @@
 import serial
 import time
 import glob
-
+import os
+from swhelpers import fmt
 
 class CO2_sensor(object):
     """
@@ -47,6 +48,9 @@ class CO2_sensor(object):
         -------
         float : ppm CO2
         """
+        # time at start of measurement
+        tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
+
         self.sensor.flushInput()
         self.sensor.write(self.msg)
         # read measurement from sensor
@@ -54,7 +58,8 @@ class CO2_sensor(object):
         high = ord(resp[3])
         low = ord(resp[4])
         co2 = (high * 256.) + low
-        return co2
+        self.last_read = [tnow, co2]
+        return [tnow, co2]
 
     def read_multi(self, n, wait=2.):
         """
@@ -73,11 +78,13 @@ class CO2_sensor(object):
         """
         out = []
         for i in xrange(n):
+            # time at start of measurement
             out.append(self.read())
             time.sleep(wait)
+        self.last_read = out
         return out
 
-    def save_CO2(self, file='CO2dat.csv', n=5, wait=2.):
+    def write_batch(self, file='CO2.csv'):
         """
         Append CO2 measurements to csv file with timestamp.
 
@@ -96,18 +103,33 @@ class CO2_sensor(object):
         -------
         None
         """
-        # time at start of measurement
-        tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
-        # measurement
-        if n > 1:
-            co2 = self.read_multi_CO2(n, wait=wait)
+        if isinstance(self.last_read[0], list):
+            Time = [r[0] for r in self.last_read]
+            CO2 = [r[1] for r in self.last_read]
+            CO2str = fmt([Time[0]] + CO2, 1, ',') + '\n'
         else:
-            co2 = [self.read_CO2()]
+            Time = self.last_read[0]
+            CO2 = self.last_read[1]
+            CO2str = Time + ',' + fmt(CO2, 1) + '\n'
 
+        if not os.path.exists(file):
+            with open(file, 'a+') as f:
+                f.write('# Time,CO2 (ppm)\n')
         with open(file, 'a+') as f:
-            f.write(tnow + ',' + ','.join(['{:.1f}'.format(i) for i in co2]) + '\n')
-
+            f.write(CO2str)
         return
+
+    def write(self, path):
+        if not os.path.exists(file):
+            with open(file, 'a+') as f:
+                f.write('# Time,CO2 (ppm)\n')
+        if isinstance(self.last_read[0], list):
+            with open(path, 'a+') as f:
+                for r in self.last_read:
+                    f.write(fmt(r, 1, ',') + '\n')
+        else:
+            with open(path, 'a+') as f:
+                f.write(fmt(self.last_read, 1, ',') + '\n')
 
     def disconnect(self):
         """
