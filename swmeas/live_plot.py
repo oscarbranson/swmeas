@@ -30,10 +30,12 @@ def liveplot(paths, xlim_min=60, interval=5000):
             # load data
             d = np.loadtxt(path, delimiter=',', converters={0: dates.datestr2num})
 
+            # isolate time col, calculate stats
             t = np.array(dates.num2date(d[:, 0]))
             co2_mean = np.mean(d[:, 1:], 1)
             co2_std = np.std(d[:, 1:], 1)
 
+            # update plot
             ax.clear()
             ax.plot(t, co2_mean, c='k')
             ax.fill_between(t, co2_mean - co2_std, co2_mean + co2_std,
@@ -52,4 +54,4 @@ def liveplot(paths, xlim_min=60, interval=5000):
 
 
 if __name__ == '__main__':
-    liveplot(['explot.csv', 'explot.csv'], 30)
+    liveplot(['explot.csv'], 30)
