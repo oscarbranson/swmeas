@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
-setup(name='cbsyst',
+setup(name='swmeas',
       version='0.0.1',
-      description='Tools monitoring seawater CO2, pH and Temp.',
+      description='Tools monitoring seawater CO2, O2 and Temp.',
       url='https://github.com/oscarbranson/swmeas',
       author='Oscar Branson',
       author_email='oscarbranson@gmail.com',
