@@ -62,7 +62,7 @@ def portscan(ID=None):
     return ports
 
 
-def par_edit(par_file='params.json', data_dir=None, interval=None, stop=None,
+def edit_par(par_file='params.json', data_dir=None, interval=None, stop=None,
              O2_n=None, O2_wait=None, CO2_n=None, CO2_wait=None,
              O2_ID=None, CO2_ID=None):
 
@@ -86,6 +86,8 @@ def write_par(param_dict, path):
     if path[-5:] != '.json':
         path += '.json'
 
+    if 'kwargs' in param_dict:
+        param_dict.pop('kwargs')
     with open(path, 'w+') as f:
         json.dump(param_dict, f, indent=2)
     return
@@ -103,7 +105,7 @@ def most_recent_json(path):
     """
     max_mtime = 0
     walk = os.walk('.')
-    for dirname,subdirs,files in walk:
+    for dirname, subdirs, files in walk:
         for fname in files:
             if 'json' in fname.lower():
                 full_path = os.path.join(dirname, fname)

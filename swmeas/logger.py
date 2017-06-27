@@ -241,13 +241,16 @@ def auto_log(mode='All', path=None, param_file=None):
         raise ValueError("{} is not a valid option.\n  > Please use 'All', 'CO2' or 'TempO2'.".format(mode))
     if param_file is None and path is None:
         raise ValueError('Please specify either param_file or path.')
-    elif not os.path.exists(param_file):
-        warnings.warn("param_file '{}' not found. Looking for other .json files...")
+    elif param_file is not None:
+        if not os.path.exists(param_file):
+            warnings.warn("param_file '{}' not found. Looking for other .json files...")
+    else:
         if path is not None:
             param_file = most_recent_json(path)
         else:
             param_file = most_recent_json(os.getcwd())
-        print('Using parameters in {}'.format(param_file))
+
+    print('Using parameters in {}'.format(param_file))
 
     par = read_par(param_file)
     fn(**par)

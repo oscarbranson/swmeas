@@ -180,7 +180,7 @@ class O2_sensor(object):
             # Time + ',' + ','.join(['{:.2f}'.format(o) for o in O2]) + '\n'
 
         # write and save data
-        self.write_str = 'Temp: ' + Tstr + '\nO2: ' + O2str
+        self.write_str = 'Temp: ' + Tstr + 'O2: ' + O2str
         with open(Tpath, 'a+') as tf:
             tf.write(Tstr)
         with open(O2path, 'a+') as of:
