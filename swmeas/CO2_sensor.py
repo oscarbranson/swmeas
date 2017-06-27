@@ -9,15 +9,15 @@ class CO2_sensor(object):
 
     Parameters
     ----------
-    SN : str
+    ID : str
         The serial number of the CO2 Sensor
     msg : byte str
         The message sent to the sensor to retrieve
         a measurement (should not need to be changed).
     """
 
-    def __init__(self, SN='FTHBSQZ9', msg=b"\xFE\x44\x00\x08\x02\x9F\x25"):
-        self.SN = SN
+    def __init__(self, ID='FTHBSQZ9', msg=b"\xFE\x44\x00\x08\x02\x9F\x25"):
+        self.ID = ID
         self.msg = msg
         self.connect()
         return
@@ -26,15 +26,15 @@ class CO2_sensor(object):
         """
         Connects to CO2 Sensor identified by Serial Number.
         """
-        # identify usb port using SN
+        # identify usb port using ID
         mpath = portscan(self.ID)
 
         if not isinstance(mpath, str):
-            raise serial.SerialException("Can't find tty port containing SN: {}".format(self.SN))
+            raise serial.SerialException("Can't find tty port containing ID: {}".format(self.ID))
 
-        print("********************" + '*' * len(self.SN) + '\n' +
-              "K-30 CO2 meter (SN: {})\n".format(self.SN) +
-              "********************" + '*' * len(self.SN) + '\n')
+        print("********************" + '*' * len(self.ID) + '\n' +
+              "K-30 CO2 meter (ID: {})\n".format(self.ID) +
+              "********************" + '*' * len(self.ID) + '\n')
 
         self.sensor = serial.Serial(mpath, baudrate=9600, timeout=.5)
         return
@@ -146,9 +146,9 @@ class CO2_sensor(object):
 
 if __name__ == '__main__':
     # serial number of CO2 meter
-    SN = 'FTHBSQZ9'
+    ID = 'FTHBSQZ9'
     # establish connection
-    sens = CO2_sensor(SN)
+    sens = CO2_sensor(ID)
     # save 10 measurements
     for i in xrange(10):
         print('Measurement {}...'.format(i))
