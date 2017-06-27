@@ -1,13 +1,13 @@
 import os
 import time
 
-from O2_sensor import O2_sensor
-from CO2_sensor import CO2_sensor
+from .O2_sensor import O2_sensor
+from .CO2_sensor import CO2_sensor
 
 
-def logger(data_dir='./log_data/', interval=60, stop=0,
+def logAll(data_dir='./log_data/', interval=60, stop=0,
            O2_n=5, O2_wait=0.5, CO2_n=5, CO2_wait=1.,
-           O2_SN='FT1HQ4GE', CO2_SN='FTHBSQZ9'):
+           O2_ID='FT1HQ4GE', CO2_ID='FTHBSQZ9'):
     """
     Log CO2, O2 and Temp sequentially, and save to files in data_dir.
 
@@ -29,9 +29,9 @@ def logger(data_dir='./log_data/', interval=60, stop=0,
         The number of CO2 measurements to make per loop.
     CO2_wait : float
         Time between individual CO2 measurements.
-    O2_SN : str
+    O2_ID : str
         The serial number of the O2 sensor
-    CO2_SN : str
+    CO2_ID : str
         The serial number of the CO2 sensor
     """
 
@@ -39,8 +39,8 @@ def logger(data_dir='./log_data/', interval=60, stop=0,
         os.mkdir(data_dir)
 
     # initialize sensors
-    o2 = O2_sensor(O2_SN)
-    co2 = CO2_sensor(CO2_SN)
+    o2 = O2_sensor(O2_ID)
+    co2 = CO2_sensor(CO2_ID)
 
     print('Logging...')
 
@@ -75,8 +75,8 @@ def logger(data_dir='./log_data/', interval=60, stop=0,
     return
 
 
-def logger_CO2(data_dir='./log_data/', interval=60, stop=0,
-               CO2_n=5, CO2_wait=1., CO2_SN='FTHBSQZ9'):
+def logCO2(data_dir='./log_data/', interval=60, stop=0,
+           CO2_n=5, CO2_wait=1., CO2_ID='FTHBSQZ9'):
     """
     Log CO2 and save to files in data_dir.
 
@@ -96,7 +96,7 @@ def logger_CO2(data_dir='./log_data/', interval=60, stop=0,
         The number of CO2 measurements to make per loop.
     CO2_wait : float
         Time between individual CO2 measurements.
-    CO2_SN : str
+    CO2_ID : str
         The serial number of the CO2 sensor
     """
 
@@ -104,7 +104,7 @@ def logger_CO2(data_dir='./log_data/', interval=60, stop=0,
         os.mkdir(data_dir)
 
     # initialize sensors
-    co2 = CO2_sensor(CO2_SN)
+    co2 = CO2_sensor(CO2_ID)
 
     print('Logging...')
 
@@ -135,8 +135,8 @@ def logger_CO2(data_dir='./log_data/', interval=60, stop=0,
     return
 
 
-def logger_O2(data_dir='./log_data/', interval=60, stop=0,
-              O2_n=5, O2_wait=.5, O2_SN='FT1HQ4GE'):
+def logTempO2(data_dir='./log_data/', interval=60, stop=0,
+              O2_n=5, O2_wait=.5, O2_ID='FT1HQ4GE'):
     """
     Log O2 and Temp and save to files in data_dir.
 
@@ -156,7 +156,7 @@ def logger_O2(data_dir='./log_data/', interval=60, stop=0,
         The number of O2 measurements to make per loop.
     O2_n : float
         Time between individual O2 measurements.
-    O2_SN : str
+    O2_ID : str
         The serial number of the CO2 sensor
     """
 
@@ -164,7 +164,7 @@ def logger_O2(data_dir='./log_data/', interval=60, stop=0,
         os.mkdir(data_dir)
 
     # initialize sensors
-    o2 = O2_sensor(O2_SN)
+    o2 = O2_sensor(O2_ID)
 
     print('Logging...')
 

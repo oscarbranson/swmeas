@@ -1,8 +1,7 @@
 import os
-import glob
 import serial
 import time
-from swhelpers import fmt
+from .helpers import fmt, portscan
 
 
 class O2_sensor(object):
@@ -11,26 +10,26 @@ class O2_sensor(object):
 
     Parameters
     ----------
-    SN : str
+    ID : str
         The serial number of the Sensor.
     """
 
-    def __init__(self, SN='FT1HQ4GE'):
-        self.SN = SN
+    def __init__(self, ID='FT1HQ4GE'):
+        self.ID = ID
         self.connect()
 
     def connect(self):
         """
         Connects to O2 Sensor identified by Serial Number.
         """
-        # identify usb port using SN
-        mpath = [g for g in glob.glob('/dev/tty*') if self.SN in g][0]
+        # identify usb port using ID
+        mpath = portscan(self.ID)
 
         if not isinstance(mpath, str):
-            raise serial.SerialException("Can't find tty port containing SN: {}".format(self.SN))
+            raise serial.SerialException("Can't find port with ID: {}".format(self.ID))
 
-        print("\n********************" + '*' * len(self.SN) + '\n' +
-              "Pyro O2 meter (SN: {})".format(self.SN))
+        print("\n********************" + '*' * len(self.ID) + '\n' +
+              "Pyro O2 meter (ID: {})".format(self.ID))
 
         # open serial
         self.sensor = serial.Serial(mpath,
@@ -48,7 +47,7 @@ class O2_sensor(object):
         # turn on power to CO2 Sensor
         self.power_on()
 
-        print("********************" + '*' * len(self.SN))
+        print("********************" + '*' * len(self.ID))
         return
 
     def read(self, P=1013000, S=35000):
@@ -208,7 +207,7 @@ class O2_sensor(object):
         """
         Turn off the power to the meter (saves power).
         """
-        print('Powering down O2 Meter ({})...'.format(self.SN))
+        print('Powering down O2 Meter ({})...'.format(self.ID))
         self.sensor.write("#PDWN\r")
         off_status = self.sensor.readline()
 
@@ -224,7 +223,7 @@ class O2_sensor(object):
         """
         Tun on the power to the meter.
         """
-        print('Powering up O2 Meter ({})...'.format(self.SN))
+        print('Powering up O2 Meter ({})...'.format(self.ID))
         self.sensor.write("#PWUP\r")
         on_status = self.sensor.readline()
         time.sleep(wait)

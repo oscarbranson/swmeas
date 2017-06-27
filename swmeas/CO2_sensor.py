@@ -1,8 +1,7 @@
 import serial
 import time
-import glob
 import os
-from swhelpers import fmt
+from .helpers import fmt, portscan
 
 class CO2_sensor(object):
     """
@@ -28,7 +27,7 @@ class CO2_sensor(object):
         Connects to CO2 Sensor identified by Serial Number.
         """
         # identify usb port using SN
-        mpath = [g for g in glob.glob('/dev/tty*') if self.SN in g][0]
+        mpath = portscan(self.ID)
 
         if not isinstance(mpath, str):
             raise serial.SerialException("Can't find tty port containing SN: {}".format(self.SN))
