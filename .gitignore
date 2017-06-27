@@ -3,6 +3,5 @@ manuals
 *.pyc
 *.ipynb
 *sublime*
-dist
 cbsyst.egg-info
 swmeas.egg-info
