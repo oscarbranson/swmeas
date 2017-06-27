@@ -102,6 +102,10 @@ class CO2_sensor(object):
         -------
         None
         """
+        if not os.path.exists(file):
+            with open(file, 'a+') as f:
+                f.write('# CO2 Sensor ID: {}\n# Time,CO2 (ppm)\n'.format(self.ID))
+        # construct write_str
         if isinstance(self.last_read[0], list):
             Time = [r[0] for r in self.last_read]
             CO2 = [r[1] for r in self.last_read]
@@ -110,10 +114,8 @@ class CO2_sensor(object):
             Time = self.last_read[0]
             CO2 = self.last_read[1]
             CO2str = Time + ',' + fmt(CO2, 1) + '\n'
-
-        if not os.path.exists(file):
-            with open(file, 'a+') as f:
-                f.write('# Time,CO2 (ppm)\n')
+        # save and write out_str
+        self.write_str = CO2str
         with open(file, 'a+') as f:
             f.write(CO2str)
         return
@@ -121,14 +123,18 @@ class CO2_sensor(object):
     def write(self, path):
         if not os.path.exists(file):
             with open(file, 'a+') as f:
-                f.write('# Time,CO2 (ppm)\n')
+                f.write('# CO2 Sensor ID: {}\n# Time,CO2 (ppm)\n'.format(self.ID))
+        # construct writing string
         if isinstance(self.last_read[0], list):
-            with open(path, 'a+') as f:
-                for r in self.last_read:
-                    f.write(fmt(r, 1, ',') + '\n')
+            out_str = ''
+            for r in self.last_read:
+                out_str += fmt(r, 1, ',') + '\n'
         else:
-            with open(path, 'a+') as f:
-                f.write(fmt(self.last_read, 1, ',') + '\n')
+            out_str = fmt(self.last_read, 1, ',') + '\n'
+        # save and write
+        self.write_str = out_str
+        with open(path, 'a+') as f:
+            f.write(out_str)
 
     def disconnect(self):
         """

@@ -154,6 +154,14 @@ class O2_sensor(object):
         """
         Write last read batches of Temp and O2 to separate files in useful units.
         """
+        # create headers, if files don't exist
+        if not os.path.exists(Tpath):
+            with open(Tpath, 'a+') as f:
+                f.write('# Temp-O2 Sensor ID: {}\n# Time,Temperature (C)\n'.format(self.ID))
+        if not os.path.exists(O2path):
+            with open(O2path, 'a+') as f:
+                f.write('# Temp-O2 Sensor ID: {}\n# Time,O2 (% Sat)\n'.format(self.ID))
+        # construct write strings
         if isinstance(self.last_read[0], list):
             Time = [r[0] for r in self.last_read]
             Temp = [r[6] / 1000. for r in self.last_read]
@@ -170,15 +178,9 @@ class O2_sensor(object):
             # Time + ',' + ','.join(['{:.2f}'.format(t) for t in Temp]) + '\n'
             O2str = fmt(Time + O2, 2, ',') + '\n'
             # Time + ',' + ','.join(['{:.2f}'.format(o) for o in O2]) + '\n'
-        # create headers, if files don't exist
-        if not os.path.exists(Tpath):
-            with open(Tpath, 'a+') as f:
-                f.write('# Time,Temperature (C)\n')
-        if not os.path.exists(O2path):
-            with open(O2path, 'a+') as f:
-                f.write('# Time,O2 (% Sat)\n')
 
-        # write data
+        # write and save data
+        self.write_str = 'Temp: ' + Tstr + '\nO2: ' + O2str
         with open(Tpath, 'a+') as tf:
             tf.write(Tstr)
         with open(O2path, 'a+') as of:
@@ -193,14 +195,17 @@ class O2_sensor(object):
         if not os.path.exists(path):
             with open(path, 'a+') as f:
                 f.write('# time,status,dphi,umolar,mbar,airSat,tempSample,tempCase,signalIntensity,ambientLight,pressure,humidity,resistorTemp,percentO2\n')
-        # write data
+        # generate out_str
         if isinstance(self.last_read[0], list):
-            with open(path, 'a+') as f:
-                for r in self.last_read:
-                    f.write(fmt(r, 1, ',') + '\n')
+            out_str = ''
+            for r in self.last_read:
+                out_str += fmt(r, 1, ',') + '\n'
         else:
-            with open(path, 'a+') as f:
-                f.write(fmt(self.last_read, 1, ',') + '\n')
+            out_str = fmt(self.last_read, 1, ',') + '\n'
+        # write and save data
+        self.write_str = out_str
+        with open(path, 'a+') as f:
+            f.write(out_str)
         return
 
     def power_off(self):

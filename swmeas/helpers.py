@@ -1,3 +1,4 @@
+import os
 import json
 from serial.tools import list_ports
 
@@ -32,7 +33,7 @@ def fmt(x, dec=1, sep=None):
 
 def portscan(ID=None):
     """
-    Scans available comports. 
+    Scans available comports.
 
     If ID is specified, returns path of the commport that
     contains ID anywhere in its properties.
@@ -61,9 +62,32 @@ def portscan(ID=None):
     return ports
 
 
+def par_edit(par_file='params.json', data_dir=None, interval=None, stop=None,
+             O2_n=None, O2_wait=None, CO2_n=None, CO2_wait=None,
+             O2_ID=None, CO2_ID=None):
+
+    if os.path.exists(par_file):
+        par_out = read_par(par_file)
+    else:
+        par_out = {}
+
+    par_update = {}
+    for k, v in locals().iteritems():
+        if k not in ('par_file', 'par_out'):
+            if v is not None:
+                par_out[k] = v
+
+    par_out.update(par_update)
+
+    write_par(par_out, par_file)
+
+
 def write_par(param_dict, path):
+    if path[-5:] != '.json':
+        path += '.json'
+
     with open(path, 'w+') as f:
-        json.dump(param_dict, f)
+        json.dump(param_dict, f, indent=2)
     return
 
 
@@ -72,6 +96,24 @@ def read_par(path):
         param_dict = json.load(f)
     return param_dict
 
+
+def most_recent_json(path):
+    """
+    Returns most recently modified .json file in path.
+    """
+    max_mtime = 0
+    walk = os.walk('.')
+    for dirname,subdirs,files in walk:
+        for fname in files:
+            if 'json' in fname.lower():
+                full_path = os.path.join(dirname, fname)
+                mtime = os.stat(full_path).st_mtime
+                if mtime > max_mtime:
+                    max_mtime = mtime
+                    max_dir = dirname
+                    max_file = fname
+
+    return max_dir + '/' + max_file
 
 
 if __name__ == "__main__":
