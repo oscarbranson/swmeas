@@ -229,7 +229,7 @@ def logTempO2(data_dir='./log_data/', interval=30, stop=0,
     # initialize sensors
     o2 = O2_sensor(ID=O2_ID, port=O2_port, name=O2_name)
 
-    print('Logging...')
+    print('Logging TempO2...')
 
     # set up timing
     start_time = os.times()[-1]
