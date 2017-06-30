@@ -1,3 +1,15 @@
+// Contains serial numbers and names of sensors.
+// 
+// Top level is the sensor type. Should contain a unique,
+// string that can be identified by find_sensors.
+// 
+// Each sensor type should contain a list ([...]) of
+// ["ID", "Name"] pairs. The "ID" should be a unique
+// identifier (e.g. serial number) that portscan can
+// use to identify the device, and "Name" should be a
+// meaningful number or string that allows identification
+// of the sensors.
+// 
 {
   "TempO2_sensor_SNs": [
     [
