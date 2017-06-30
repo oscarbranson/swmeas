@@ -35,7 +35,7 @@ class O2_sensor(object):
         else:
             raise ValueError('Either ID or port must be specified')
 
-        self.label = "O2 sensor {} ({}) on port {}\n".format(self.name, self.ID, self.port)
+        self.label = "TempO2 sensor {} ({}) on port {}\n".format(self.name, self.ID, self.port)
         print("\n" + '*' * len(self.label) + '\n' +
               self.label)
 
@@ -178,10 +178,10 @@ class O2_sensor(object):
         # create headers, if files don't exist
         if not os.path.exists(Tpath):
             with open(Tpath, 'a+') as f:
-                f.write('# Temp-O2 Sensor ID: {}\n# Time,Temperature (C)\n'.format(self.ID))
+                f.write('# {}# Time,Temperature (C)\n'.format(self.label))
         if not os.path.exists(O2path):
             with open(O2path, 'a+') as f:
-                f.write('# Temp-O2 Sensor ID: {}\n# Time,O2 ({}, {})\n'.format(self.ID, mode, o2unit))
+                f.write('# {}# Time,O2 ({}, {})\n'.format(self.label, mode, o2unit))
         # construct write strings
         if isinstance(self.last_read[0], list):
             Time = [r[0] for r in self.last_read]
@@ -215,7 +215,7 @@ class O2_sensor(object):
         # if file doesn't already exist, write column names in a header
         if not os.path.exists(path):
             with open(path, 'a+') as f:
-                f.write('# time,status,dphi,umolar,mbar,airSat,tempSample,tempCase,signalIntensity,ambientLight,pressure,humidity,resistorTemp,percentO2\n')
+                f.write('# {}# time,status,dphi,umolar,mbar,airSat,tempSample,tempCase,signalIntensity,ambientLight,pressure,humidity,resistorTemp,percentO2\n'.format(self.label))
         # generate out_str
         if isinstance(self.last_read[0], list):
             out_str = ''
