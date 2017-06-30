@@ -46,7 +46,7 @@ def timed_dir(directory, new_folder_every='day'):
 
     now = dt.datetime.now()
 
-    dtimes = [now - 2 * time_gap]
+    dtimes = []
     current_dirs = os.listdir(directory)
     for d in current_dirs:
         try:
@@ -56,7 +56,7 @@ def timed_dir(directory, new_folder_every='day'):
 
     most_recent = max(dtimes)
 
-    if ((now - most_recent) >= time_gap) | (most_recent == dtimes[0]):
+    if ((now - most_recent) >= time_gap) | (len(dtimes) == 0):
         ndir = directory + '/' + now.strftime(fmt)
         os.mkdir(ndir)
         return ndir
