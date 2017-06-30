@@ -164,8 +164,9 @@ def find_sensor(stype=None, SNs_json=None):
         print('  \n'.join(['{}'.format(s[0] for s in available)]))
         return
     else:
-        print("\n{} sensor {} ({}) found.\n".format(stype, s[1], s[0]))
-        return s + port
+        a = available[0]
+        print("\n{} sensor {} ({}) found.\n".format(stype, a[1], a[0]))
+        return a + port
 
 
 def edit_par(par_file='params.json', data_dir=None, interval=None, stop=None,
