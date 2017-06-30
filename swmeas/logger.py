@@ -81,7 +81,7 @@ def logAll(data_dir='./log_data/', interval=60, stop=0,
         co2.read_multi(CO2_n, CO2_wait)
         co2.write_batch(save_dir + '/co2.csv')
         if verbose:
-            print(co2.write_str[:-2])
+            print(co2.write_str[:-1])
         # print('')
 
         # print('  O2-Temp Measurement')
@@ -89,7 +89,7 @@ def logAll(data_dir='./log_data/', interval=60, stop=0,
         o2.write_TempO2_batch(save_dir + '/temp.csv', save_dir + '/o2.csv', mode=O2_mode)
         o2.write(save_dir + '/TempO2_raw.csv')
         if verbose:
-            print(o2.write_str[:-2])
+            print(o2.write_str[:-1])
         # print('')
 
         # timing mechanics
@@ -136,7 +136,7 @@ def logCO2(data_dir='./log_data/', interval=30, stop=0,
     # record parameters
     if not os.path.exists(data_dir):
         os.mkdir(data_dir)
-    write_par(locals(), data_dir + '/logAll.json')
+    write_par(locals(), data_dir + '/logCO2.json')
 
     # if ID not specified, find a sensor listed in json file
     if CO2_ID is None:
@@ -169,7 +169,7 @@ def logCO2(data_dir='./log_data/', interval=30, stop=0,
         co2.read_multi(CO2_n, CO2_wait)
         co2.write_batch(save_dir + '/co2.csv')
         if verbose:
-            print(co2.write_str[:-2])
+            print(co2.write_str[:-1])
         # print('')
 
         # timing mechanics
@@ -217,7 +217,7 @@ def logTempO2(data_dir='./log_data/', interval=30, stop=0,
     if not os.path.exists(data_dir):
         os.mkdir(data_dir)
 
-    write_par(locals(), data_dir + '/logAll.json')
+    write_par(locals(), data_dir + '/logTempO2.json')
 
     # if ID not specified, find a sensor listed in json file
     if O2_ID is None:
@@ -250,7 +250,7 @@ def logTempO2(data_dir='./log_data/', interval=30, stop=0,
         o2.read_multi(O2_n, O2_wait)
         o2.write_TempO2_batch(save_dir + '/temp.csv', save_dir + '/o2.csv', mode=mode)
         if verbose:
-            print(o2.write_str[:-2])
+            print(o2.write_str[:-1])
         o2.write(save_dir + '/TempO2_raw.csv')
         # print('')
         
