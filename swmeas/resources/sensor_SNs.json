@@ -1,0 +1,26 @@
+{
+  "TempO2_sensor_SNs": [
+    [
+      "FT1HQ4GE", 
+      1
+    ]
+  ], 
+  "CO2_sensor_SNs": [
+    [
+      "A904RTUJ", 
+      1
+    ], 
+    [
+      "FTHBSQZ9", 
+      2
+    ], 
+    [
+      "AK05D8FH", 
+      3
+    ],
+    [
+      "FTHBSUFR",
+      4
+    ]
+  ]
+}

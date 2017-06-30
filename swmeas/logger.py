@@ -4,12 +4,12 @@ import warnings
 
 from .O2_sensor import O2_sensor
 from .CO2_sensor import CO2_sensor
-from .helpers import read_par, write_par, most_recent_json
+from .helpers import read_par, write_par, most_recent_json, timed_dir
 
 
 def logAll(data_dir='./log_data/', interval=60, stop=0,
            O2_n=5, O2_wait=0.5, CO2_n=5, CO2_wait=1.,
-           O2_ID='FT1HQ4GE', CO2_ID='FTHBSQZ9', **kwargs):
+           O2_ID='FT1HQ4GE', CO2_ID='FTHBSQZ9', new_folder_every=None, **kwargs):
     """
     Log CO2, O2 and Temp sequentially, and save to files in data_dir.
 
@@ -36,11 +36,15 @@ def logAll(data_dir='./log_data/', interval=60, stop=0,
     CO2_ID : str
         The serial number of the CO2 sensor
     """
+    # record parameters
+    write_par(locals(), data_dir + '/logAll.json')
 
     if not os.path.exists(data_dir):
         os.mkdir(data_dir)
 
-    write_par(locals(), data_dir + '/logAll.json')
+    # create timed subdirectory, if required
+    if new_folder_every is not None:
+        data_dir = timed_dir(data_dir, new_folder_every)
 
     # initialize sensors
     o2 = O2_sensor(O2_ID)
@@ -84,7 +88,7 @@ def logAll(data_dir='./log_data/', interval=60, stop=0,
 
 
 def logCO2(data_dir='./log_data/', interval=60, stop=0,
-           CO2_n=5, CO2_wait=1., CO2_ID='FTHBSQZ9', **kwargs):
+           CO2_n=5, CO2_wait=1., CO2_ID='FTHBSQZ9', new_folder_every=None, **kwargs):
     """
     Log CO2 and save to files in data_dir.
 
@@ -107,11 +111,15 @@ def logCO2(data_dir='./log_data/', interval=60, stop=0,
     CO2_ID : str
         The serial number of the CO2 sensor
     """
+    # record parameters
+    write_par(locals(), data_dir + '/logAll.json')
 
     if not os.path.exists(data_dir):
         os.mkdir(data_dir)
 
-    write_par(locals(), data_dir + '/logCO2.json')
+    # create timed subdirectory, if required
+    if new_folder_every is not None:
+        data_dir = timed_dir(data_dir, new_folder_every)
 
     # initialize sensors
     co2 = CO2_sensor(CO2_ID)
@@ -148,7 +156,8 @@ def logCO2(data_dir='./log_data/', interval=60, stop=0,
 
 
 def logTempO2(data_dir='./log_data/', interval=60, stop=0,
-              O2_n=5, O2_wait=.5, O2_ID='FT1HQ4GE', **kwargs):
+              O2_n=5, O2_wait=.5, O2_ID='FT1HQ4GE',
+              mode='water', new_folder_every=None, **kwargs):
     """
     Log O2 and Temp and save to files in data_dir.
 
@@ -171,11 +180,15 @@ def logTempO2(data_dir='./log_data/', interval=60, stop=0,
     O2_ID : str
         The serial number of the CO2 sensor
     """
+    # record parameters
+    write_par(locals(), data_dir + '/logAll.json')
 
     if not os.path.exists(data_dir):
         os.mkdir(data_dir)
 
-    write_par(locals(), data_dir + '/logTempO2.json')
+    # create timed subdirectory, if required
+    if new_folder_every is not None:
+        data_dir = timed_dir(data_dir, new_folder_every)
 
     # initialize sensors
     o2 = O2_sensor(O2_ID)
@@ -257,4 +270,6 @@ def auto_log(mode='All', path=None, param_file=None):
 
 
 if __name__ == '__main__':
-    logAll('./test_log/', 35, 0)
+    # logAll('./test_log/', 35, 0)
+
+    pass
