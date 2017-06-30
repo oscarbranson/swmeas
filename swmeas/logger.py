@@ -253,7 +253,7 @@ def logTempO2(data_dir='./log_data/', interval=30, stop=0,
             print(o2.write_str[:-1])
         o2.write(save_dir + '/TempO2_raw.csv')
         # print('')
-        
+
         # timing mechanics
         loop_time = os.times()[-1] - time_startloop
         # print('loop time: {:.1f}'.format(loop_time))

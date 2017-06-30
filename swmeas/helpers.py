@@ -34,12 +34,13 @@ def fmt(x, dec=1, sep=None):
             return sep.join(out)
 
 
-def timed_dir(directory, new_folder_every='day',
-              fmt='%Y-%m-%d-%H'):
+def timed_dir(directory, new_folder_every='day'):
     if new_folder_every is None or 'day' in new_folder_every:
         time_gap = dt.timedelta(days=1)
+        fmt = '%Y-%m-%d'
     elif 'hour' in new_folder_every:
         time_gap = dt.timedelta(hours=1)
+        fmt = '%Y-%m-%d-%H'
     else:
         raise ValueError("now_folder_every must be either 'day' or 'hour'")
 
@@ -55,7 +56,7 @@ def timed_dir(directory, new_folder_every='day',
 
     most_recent = max(dtimes)
 
-    if ((now - most_recent) > time_gap) | (most_recent == dtimes[0]):
+    if ((now - most_recent) >= time_gap) | (most_recent == dtimes[0]):
         ndir = directory + '/' + now.strftime(fmt)
         os.mkdir(ndir)
         return ndir
