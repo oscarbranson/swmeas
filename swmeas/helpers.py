@@ -94,6 +94,28 @@ def portscan(ID=None):
     return ports
 
 
+def load_sensor_IDs(SNs_json=None):
+    """
+    Load sensor information from json file.
+
+    Paramers
+    --------
+    SNs_json : str
+        Path to json file. If None, uses built in default.
+
+    Returns
+    -------
+    dict
+    """
+    if SNs_json is None:
+        SNs_json = os.path.dirname(sys.modules['swmeas'].__file__) + '/resources/sensor_SNs.json'
+
+    with open(SNs_json, 'r') as f:
+        sensor_dict = json.load(f)
+
+    return sensor_dict
+
+
 def find_sensor(stype=None, SNs_json=None):
     """
     Scans ports to find any of the sensors listed in SNs_json
@@ -108,11 +130,7 @@ def find_sensor(stype=None, SNs_json=None):
     -------
     (SN, Name, port) : tuple
     """
-    if SNs_json is None:
-        SNs_json = os.path.dirname(sys.modules['swmeas'].__file__) + '/resources/sensor_SNs.json'
-
-    with open(SNs_json, 'r') as f:
-        sensor_dict = json.load(f)
+    sensor_dict = load_sensor_IDs(SNs_json)
 
     try:
         skey = [k for k in sensor_dict.keys() if stype in k][0]
