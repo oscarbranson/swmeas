@@ -3,6 +3,7 @@ import time
 import os
 from .helpers import fmt, portscan
 
+
 class CO2_sensor(object):
     """
     Connect to and take measurements from a K-30 CO2 Sensor.
@@ -16,9 +17,11 @@ class CO2_sensor(object):
         a measurement (should not need to be changed).
     """
 
-    def __init__(self, ID='FTHBSQZ9', msg=b"\xFE\x44\x00\x08\x02\x9F\x25"):
+    def __init__(self, ID=None, port=None, name='', msg=b"\xFE\x44\x00\x08\x02\x9F\x25"):
         self.ID = ID
         self.msg = msg
+        self.name = name
+        self.port = port
         self.connect()
         return
 
@@ -26,17 +29,20 @@ class CO2_sensor(object):
         """
         Connects to CO2 Sensor identified by Serial Number.
         """
-        # identify usb port using ID
-        mpath = portscan(self.ID)
+        if self.port is not None:
+            pass
+        elif self.ID is not None:
+            # identify usb port using ID
+            self.port = portscan(self.ID)
+            if not isinstance(self.port, str):
+                raise serial.SerialException("Can't find tty port containing ID: {}".format(self.ID))
 
-        if not isinstance(mpath, str):
-            raise serial.SerialException("Can't find tty port containing ID: {}".format(self.ID))
+        self.label = "CO2 sensor {} ({}) on port {}\n".format(self.name, self.ID, self.port)
+        print("\n" + '*' * len(self.label) + '\n' +
+              self.label +
+              '*' * len(self.label) + '\n')
 
-        print("********************" + '*' * len(self.ID) + '\n' +
-              "K-30 CO2 meter (ID: {})\n".format(self.ID) +
-              "********************" + '*' * len(self.ID) + '\n')
-
-        self.sensor = serial.Serial(mpath, baudrate=9600, timeout=.5)
+        self.sensor = serial.Serial(self.port, baudrate=9600, timeout=.5)
         return
 
     def read(self):

@@ -14,25 +14,33 @@ class O2_sensor(object):
         The serial number of the Sensor.
     """
 
-    def __init__(self, ID='FT1HQ4GE'):
+    def __init__(self, ID=None, port=None, name=''):
         self.ID = ID
+        self.port = port
+        self.name = name
         self.connect()
 
     def connect(self):
         """
         Connects to O2 Sensor identified by Serial Number.
         """
-        # identify usb port using ID
-        mpath = portscan(self.ID)
+        if self.port is not None:
+            pass
+        elif self.ID is not None:
+            # identify usb port using ID
+            self.port = portscan(self.ID)
 
-        if not isinstance(mpath, str):
-            raise serial.SerialException("Can't find port with ID: {}".format(self.ID))
+            if not isinstance(self.port, str):
+                raise serial.SerialException("Can't find ifport with ID: {}".format(self.ID))
+        else:
+            raise ValueError('Either ID or port must be specified')
 
-        print("\n********************" + '*' * len(self.ID) + '\n' +
-              "Pyro O2 meter (ID: {})".format(self.ID))
+        self.label = "O2 sensor {} ({}) on port {}\n".format(self.name, self.ID, self.port)
+        print("\n" + '*' * len(self.label) + '\n' +
+              self.label)
 
         # open serial
-        self.sensor = serial.Serial(mpath,
+        self.sensor = serial.Serial(self.port,
                                     baudrate=19200,
                                     parity=serial.PARITY_NONE,
                                     stopbits=serial.STOPBITS_ONE,
@@ -47,7 +55,7 @@ class O2_sensor(object):
         # turn on power to CO2 Sensor
         self.power_on()
 
-        print("********************" + '*' * len(self.ID))
+        print('*' * len(self.label) + '\n')
         return
 
     def read(self, P=1013000, S=35000):
