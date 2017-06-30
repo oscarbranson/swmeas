@@ -150,22 +150,35 @@ class O2_sensor(object):
         self.last_read = out
         return out
 
-    def write_TempO2_batch(self, Tpath='Temp.csv', O2path='O2.csv'):
+    def write_TempO2_batch(self, Tpath='Temp.csv', O2path='O2.csv', mode='water'):
         """
         Write last read batches of Temp and O2 to separate files in useful units.
+
+        Parameters
+        ----------
+        mode : str
+            'air' or 'water' - switches output between percentO2 and umol/L
         """
+        if mode == 'water':
+            o2ind = 3
+            o2unit = 'umol/L'
+        elif mode == 'air':
+            o2ind = 13
+            o2unit = '% O2'
+        else:
+            raise ValueError("mode must be either 'water' or 'air'")
         # create headers, if files don't exist
         if not os.path.exists(Tpath):
             with open(Tpath, 'a+') as f:
                 f.write('# Temp-O2 Sensor ID: {}\n# Time,Temperature (C)\n'.format(self.ID))
         if not os.path.exists(O2path):
             with open(O2path, 'a+') as f:
-                f.write('# Temp-O2 Sensor ID: {}\n# Time,O2 (% Sat)\n'.format(self.ID))
+                f.write('# Temp-O2 Sensor ID: {}\n# Time,O2 ({}, {})\n'.format(self.ID, mode, o2unit))
         # construct write strings
         if isinstance(self.last_read[0], list):
             Time = [r[0] for r in self.last_read]
             Temp = [r[6] / 1000. for r in self.last_read]
-            O2 = [r[13] / 1000. for r in self.last_read]
+            O2 = [r[o2ind] / 1000. for r in self.last_read]
             Tstr = fmt([Time[0]] + Temp, 2, ',') + '\n'
             # Time[0] + ',' + ','.join(['{:.2f}'.format(t) for t in Temp]) + '\n'
             O2str = fmt([Time[0]] + O2, 2, ',') + '\n'
