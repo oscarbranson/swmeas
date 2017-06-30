@@ -16,4 +16,5 @@ setup(name='swmeas',
       install_requires=['numpy',
                         'pyserial==2.7',
                         'matplotlib'],
+      package_data={'swmeas': ['resources/*']},
       zip_safe=True)
