@@ -227,7 +227,4 @@ def most_recent_json(path):
 
 
 if __name__ == "__main__":
-    # timed_dir('./test/')
-
-    import dateutil
-    print(dateutil.__version__)
+    print('Nothing to see here...')

@@ -1,7 +1,8 @@
 import serial
 import time
 import os
-from .helpers import fmt, portscan
+from builtins import bytes, range  # for python 2/3 compatability
+from .helpers import fmt, portscan, find_sensor
 
 
 class CO2_sensor(object):
@@ -17,9 +18,8 @@ class CO2_sensor(object):
         a measurement (should not need to be changed).
     """
 
-    def __init__(self, ID=None, port=None, name='', msg=b"\xFE\x44\x00\x08\x02\x9F\x25"):
+    def __init__(self, ID=None, port=None, name=''):
         self.ID = ID
-        self.msg = msg
         self.name = name
         self.port = port
         self.connect()
@@ -36,6 +36,8 @@ class CO2_sensor(object):
             self.port = portscan(self.ID)
             if not isinstance(self.port, str):
                 raise serial.SerialException("Can't find tty port containing ID: {}".format(self.ID))
+        else:
+            self.ID, self.name, self.port = find_sensor('CO2')
 
         self.label = "CO2 sensor {} ({}) on port {}\n".format(self.name, self.ID, self.port)
         print("\n" + '*' * len(self.label) + '\n' +
@@ -44,6 +46,27 @@ class CO2_sensor(object):
 
         self.sensor = serial.Serial(self.port, baudrate=9600, timeout=.5)
         return
+
+    # def read(self):
+    #     """
+    #     Read a single CO2 measurement from the sensor.
+
+    #     Returns
+    #     -------
+    #     float : ppm CO2
+    #     """
+    #     # time at start of measurement
+    #     tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
+
+    #     self.sensor.flushInput()
+    #     self.sensor.write(self.msg)
+    #     # read measurement from sensor
+    #     resp = self.sensor.read(7)
+    #     high = ord(resp[3])
+    #     low = ord(resp[4])
+    #     co2 = (high * 256.) + low
+    #     self.last_read = [tnow, co2]
+    #     return [tnow, co2]
 
     def read(self):
         """
@@ -57,11 +80,12 @@ class CO2_sensor(object):
         tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
 
         self.sensor.flushInput()
-        self.sensor.write(self.msg)
+        msg = b"\xFE\x44\x00\x08\x02\x9F\x25"
+        self.sensor.write(msg)
         # read measurement from sensor
-        resp = self.sensor.read(7)
-        high = ord(resp[3])
-        low = ord(resp[4])
+        resp = bytes(self.sensor.read(7))
+        high = resp[3]
+        low = resp[4]
         co2 = (high * 256.) + low
         self.last_read = [tnow, co2]
         return [tnow, co2]
@@ -82,7 +106,7 @@ class CO2_sensor(object):
         List of ppm CO2 measurements.
         """
         out = []
-        for i in xrange(n):
+        for i in range(n):
             # time at start of measurement
             out.append(self.read())
             time.sleep(wait)
@@ -156,7 +180,7 @@ if __name__ == '__main__':
     # establish connection
     sens = CO2_sensor(ID)
     # save 10 measurements
-    for i in xrange(10):
+    for i in range(10):
         print('Measurement {}...'.format(i))
         sens.save_CO2('explot.csv')
         print('   Done.')

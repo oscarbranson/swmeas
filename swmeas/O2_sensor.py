@@ -1,7 +1,8 @@
 import os
 import serial
 import time
-from .helpers import fmt, portscan
+from builtins import range  # for python 2/3 compatability
+from .helpers import fmt, portscan, find_sensor
 
 
 class O2_sensor(object):
@@ -33,7 +34,7 @@ class O2_sensor(object):
             if not isinstance(self.port, str):
                 raise serial.SerialException("Can't find ifport with ID: {}".format(self.ID))
         else:
-            raise ValueError('Either ID or port must be specified')
+            self.ID, self.name, self.port = find_sensor('TempO2')
 
         self.label = "TempO2 sensor {} ({}) on port {}\n".format(self.name, self.ID, self.port)
         print("\n" + '*' * len(self.label) + '\n' +
@@ -152,7 +153,7 @@ class O2_sensor(object):
             13: percentO2 (e-3 %O2)
         """
         out = []
-        for i in xrange(n):
+        for i in range(n):
             out.append(self.read(P=P, S=S))
             time.sleep(wait)
         self.last_read = out
