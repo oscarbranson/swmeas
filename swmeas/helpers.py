@@ -54,17 +54,22 @@ def timed_dir(directory, new_folder_every='day'):
         except ValueError:
             pass
 
-    most_recent = max(dtimes)
+    if len(dtimes) > 0:
+        most_recent = max(dtimes)
 
-    if ((now - most_recent) >= time_gap) | (len(dtimes) == 0):
+        if ((now - most_recent) >= time_gap):
+            ndir = directory + '/' + now.strftime(fmt)
+            os.mkdir(ndir)
+            return ndir
+        else:
+            return directory + '/' + most_recent.strftime(fmt)
+    else:
         ndir = directory + '/' + now.strftime(fmt)
         os.mkdir(ndir)
         return ndir
-    else:
-        return directory + '/' + most_recent.strftime(fmt)
 
 
-def portscan(ID=None):
+def portscan(ID=None, silent=True):
     """
     Scans available comports.
 
@@ -73,26 +78,32 @@ def portscan(ID=None):
     If ID is not specified, prints and returns a list of
     comports.
 
+    Returns:
+    IF found: (port, Serial_number)
+    if not, list of ports.
+
     """
     ports = list_ports.comports()
 
     if ID is not None:
         for p in ports:
             if any([ID in i for i in p]):
-                return p[0]
-        print("\n\nNo port with ID '{}' found. These are the available ports:".format(ID))
+                return p
+        if not silent:
+            print("\n\nNo port with ID '{}' found. These are the available ports:".format(ID))
     else:
-        print("\n\nAvailable ports:")
+        if not silent:
+            print("\n\nAvailable ports:")
 
-    # line lengths
-    L1 = max(len(p[0]) for p in ports) + 5
-    L2 = max(len(p[1]) for p in ports) + 5
-    fmt_str = "{:" + str(L1) + "s} {:" + str(L2) + "s} {}"
-    for p in ports:
-        print(fmt_str.format(p[0], p[1], p[2]))
-    # print('\nUse an ID that identifies one of these ports.\n\n')
-
-    return ports
+    if not silent:
+        # line lengths
+        L1 = max(len(p[0]) for p in ports) + 5
+        L2 = max(len(p[1]) for p in ports) + 5
+        fmt_str = "{:" + str(L1) + "s} {:" + str(L2) + "s} {}"
+        for p in ports:
+            print(fmt_str.format(p[0], p[1], p[2]))
+        # print('\nUse an ID that identifies one of these ports.\n\n')
+    return None
 
 
 def load_sensor_IDs(SNs_json=None):
@@ -115,6 +126,17 @@ def load_sensor_IDs(SNs_json=None):
         sensor_dict = json.load(f)
 
     return sensor_dict
+
+
+def get_sensor_name(SN, SNs_json=None):
+
+    sdict = load_sensor_IDs(SNs_json)
+
+    for k, v in sdict.items():
+        for sn, name in v:
+            if SN == sn:
+                return name
+    return ''
 
 
 def find_sensor(stype=None, SNs_json=None):
@@ -147,7 +169,7 @@ def find_sensor(stype=None, SNs_json=None):
     # else:
     #     raise ValueError("Sensor type '{}' not supported.\nShould be either 'CO2' or 'TempO2'.".format(stype))
 
-    ports = portscan()
+    ports = list_ports.comports()
 
     available = []
     port = []

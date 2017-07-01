@@ -2,7 +2,7 @@ import os
 import serial
 import time
 from builtins import range  # for python 2/3 compatability
-from .helpers import fmt, portscan, find_sensor
+from .helpers import fmt, portscan, find_sensor, get_sensor_name
 
 
 class O2_sensor(object):
@@ -26,13 +26,21 @@ class O2_sensor(object):
         Connects to O2 Sensor identified by Serial Number.
         """
         if self.port is not None:
-            pass
+            p = portscan(self.port)
+            if p is not None:
+                self.port = p.device
+                self.ID = p.serial_number
+                self.name = get_sensor_name(self.ID)
+            else:
+                raise serial.SerialException("Can't find port: {}".format(self.port))
         elif self.ID is not None:
-            # identify usb port using ID
-            self.port = portscan(self.ID)
-
-            if not isinstance(self.port, str):
-                raise serial.SerialException("Can't find ifport with ID: {}".format(self.ID))
+            p = portscan(self.ID)
+            if p is not None:
+                self.port = p.device
+                self.ID = p.serial_number
+                self.name = get_sensor_name(self.ID)
+            else:
+                raise serial.SerialException("Can't find port with ID: {}".format(self.ID))
         else:
             self.ID, self.name, self.port = find_sensor('TempO2')
 
