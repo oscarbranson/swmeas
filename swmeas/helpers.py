@@ -18,7 +18,10 @@ def fmt(x, dec=1, sep=None):
     sep : str
         If specified, all items in list are joined using this str.
     """
-    fmt_str = '{:.' + str(dec) + 'f}'
+    if dec is not None:
+        fmt_str = '{:.' + str(dec) + 'f}'
+    else:
+        fmt_str = '{:}'
     if isinstance(x, (float, int)):
         return fmt_str.format(x)
     elif hasattr(x, '__iter__'):
@@ -33,6 +36,21 @@ def fmt(x, dec=1, sep=None):
         else:
             return sep.join(out)
 
+def write(dat, file, dec=None, sep=','):
+    """
+    Append data to file.
+    """
+    wstr = ''
+    if isinstance(dat[0], list):
+        lines = []
+        for d in dat:
+            lines.append(fmt(d, dec, sep))
+        wstr = '\n'.join(lines)
+    else:
+        wstr += fmt(dat, dec, sep)
+    
+    with open(file, 'a+') as f:
+        f.write(wstr)
 
 def timed_dir(directory, new_folder_every='day'):
     if new_folder_every is None or 'day' in new_folder_every:
