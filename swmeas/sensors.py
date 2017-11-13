@@ -4,8 +4,8 @@ import random
 import os
 import u6
 from builtins import bytes, range  # for python 2/3 compatability
-from .helpers import fmt, portscan, find_sensor, get_sensor_name
-from .utils import time_now
+from .helpers import time_now, fmt_lines
+from .utils import portscan, find_sensor, get_sensor_name
 
 class dummy_sensor(object):
     """
