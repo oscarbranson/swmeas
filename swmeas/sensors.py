@@ -200,59 +200,6 @@ class CO2_sensor(object):
         with open(file, 'a+') as f:
             f.write(out_str + '\n')
 
-    # def write_batch(self, file='CO2.csv'):
-    #     """
-    #     Append CO2 measurements to csv file with timestamp.
-
-    #     Adds a new lien to file containing: time,[CO2] * n
-
-    #     Parameters
-    #     ----------
-    #     file : str
-    #         Path to save file.
-    #     n : int
-    #         Number of measurements to make.
-    #     wait : float
-    #         Seconds between measurements
-
-    #     Returns
-    #     -------
-    #     None
-    #     """
-    #     if not os.path.exists(file):
-    #         with open(file, 'a+') as f:
-    #             f.write('# {}# Time,CO2 (ppm)\n'.format(self.label))
-    #     # construct write_str
-    #     if isinstance(self.last_read[0], list):
-    #         Time = [r[0] for r in self.last_read]
-    #         CO2 = [r[1] for r in self.last_read]
-    #         CO2str = fmt([Time[0]] + CO2, 1, ',') + '\n'
-    #     else:
-    #         Time = self.last_read[0]
-    #         CO2 = self.last_read[1]
-    #         CO2str = Time + ',' + fmt(CO2, 1) + '\n'
-    #     # save and write out_str
-    #     self.write_str = CO2str
-    #     with open(file, 'a+') as f:
-    #         f.write(CO2str)
-    #     return
-
-    # def write(self, path):
-    #     if not os.path.exists(file):
-    #         with open(file, 'a+') as f:
-    #             f.write('# {}# Time,CO2 (ppm)\n'.format(self.label))
-    #     # construct writing string
-    #     if isinstance(self.last_read[0], list):
-    #         out_str = ''
-    #         for r in self.last_read:
-    #             out_str += fmt(r, 1, ',') + '\n'
-    #     else:
-    #         out_str = fmt(self.last_read, 1, ',') + '\n'
-    #     # save and write
-    #     self.write_str = out_str
-    #     with open(path, 'a+') as f:
-    #         f.write(out_str)
-
 
 class O2_sensor(object):
     """
@@ -469,77 +416,6 @@ class O2_sensor(object):
         out_str = fmt_lines(self.last_read)
         with open(file, 'a+') as f:
             f.write(out_str + '\n')
-
-    # def write_TempO2_batch(self, Tpath='Temp.csv', O2path='O2.csv', mode='water'):
-    #     """
-    #     Write last read batches of Temp and O2 to separate files in useful units.
-
-    #     Parameters
-    #     ----------
-    #     mode : str
-    #         'air' or 'water' - switches output between percentO2 and umol/L
-    #     """
-    #     if mode == 'water':
-    #         o2ind = 3
-    #         o2unit = 'umol/L'
-    #     elif mode == 'air':
-    #         o2ind = 13
-    #         o2unit = '% O2'
-    #     else:
-    #         raise ValueError("mode must be either 'water' or 'air'")
-    #     # create headers, if files don't exist
-    #     if not os.path.exists(Tpath):
-    #         with open(Tpath, 'a+') as f:
-    #             f.write('# {}# Time,Temperature (C)\n'.format(self.label))
-    #     if not os.path.exists(O2path):
-    #         with open(O2path, 'a+') as f:
-    #             f.write('# {}# Time,O2 ({}, {})\n'.format(self.label, mode, o2unit))
-    #     # construct write strings
-    #     if isinstance(self.last_read[0], list):
-    #         Time = [r[0] for r in self.last_read]
-    #         Temp = [r[6] / 1000. for r in self.last_read]
-    #         O2 = [r[o2ind] / 1000. for r in self.last_read]
-    #         Tstr = fmt([Time[0]] + Temp, 2, ',') + '\n'
-    #         # Time[0] + ',' + ','.join(['{:.2f}'.format(t) for t in Temp]) + '\n'
-    #         O2str = fmt([Time[0]] + O2, 2, ',') + '\n'
-    #         # Time[0] + ',' + ','.join(['{:.2f}'.format(o) for o in O2]) + '\n'
-    #     else:
-    #         Time = [self.last_read[0] / 1000.]
-    #         Temp = [self.last_read[6] / 1000.]
-    #         O2 = [self.last_read[13] / 1000.]
-    #         Tstr = fmt(Time + Temp, 2, ',') + '\n'
-    #         # Time + ',' + ','.join(['{:.2f}'.format(t) for t in Temp]) + '\n'
-    #         O2str = fmt(Time + O2, 2, ',') + '\n'
-    #         # Time + ',' + ','.join(['{:.2f}'.format(o) for o in O2]) + '\n'
-
-    #     # write and save data
-    #     self.write_str = 'Temp: ' + Tstr + 'O2: ' + O2str
-    #     with open(Tpath, 'a+') as tf:
-    #         tf.write(Tstr)
-    #     with open(O2path, 'a+') as of:
-    #         of.write(O2str)
-    #     return
-
-    # def write(self, path):
-    #     """
-    #     Write last read data to file.
-    #     """
-    #     # if file doesn't already exist, write column names in a header
-    #     if not os.path.exists(path):
-    #         with open(path, 'a+') as f:
-    #             f.write('# {}# time,status,dphi,umolar,mbar,airSat,tempSample,tempCase,signalIntensity,ambientLight,pressure,humidity,resistorTemp,percentO2\n'.format(self.label))
-    #     # generate out_str
-    #     if isinstance(self.last_read[0], list):
-    #         out_str = ''
-    #         for r in self.last_read:
-    #             out_str += fmt(r, 1, ',') + '\n'
-    #     else:
-    #         out_str = fmt(self.last_read, 1, ',') + '\n'
-    #     # write and save data
-    #     self.write_str = out_str
-    #     with open(path, 'a+') as f:
-    #         f.write(out_str)
-    #     return
 
 
 class pH_sensor(object):
