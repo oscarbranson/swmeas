@@ -17,7 +17,7 @@ class dummy_sensor(object):
         self.port = 'aport'
         self.last_read = None
         return
-
+    
     def read(self):
         """
         Read a single measurement from the sensor.
@@ -27,29 +27,15 @@ class dummy_sensor(object):
         [time, float] : str, ppm CO2
         """
         # time at start of measurement
-        tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
+        tnow = time_now()
 
         # make up some data
         data = [random.gauss(4, .5), random.gauss(4, .5), random.gauss(4, .5)]
+        
+        # store and return result
         self.last_read = [tnow] + data
         return self.last_read
-
-    def write(self, path):
-        if not os.path.exists(file):
-            with open(file, 'a+') as f:
-                f.write('# {}# Time,CO2 (ppm)\n'.format(self.label))
-        # construct writing string
-        if isinstance(self.last_read[0], list):
-            out_str = ''
-            for r in self.last_read:
-                out_str += fmt(r, 1, ',') + '\n'
-        else:
-            out_str = fmt(self.last_read, 1, ',') + '\n'
-        # save and write
-        self.write_str = out_str
-        with open(path, 'a+') as f:
-            f.write(out_str)
-
+    
     def read_multi(self, n, wait=2.):
         """
         Read multiple CO2 measurements from sensor.
@@ -67,11 +53,23 @@ class dummy_sensor(object):
         """
         out = []
         for i in range(n):
-            # time at start of measurement
             out.append(self.read())
             time.sleep(wait)
         self.last_read = out
-        return out
+        return self.last_read
+    
+    def write_header(self, file):
+        with open(file, 'a+') as f:
+            f.write('Time,data1,data2,data3\n')
+
+    def write(self, file):
+        if not os.path.exists(file):
+            self.write_header(file)
+        
+        out_str = fmt_lines(self.last_read)
+        with open(file, 'a+') as f:
+            f.write(out_str + '\n')
+        
 
 
 class CO2_sensor(object):
@@ -93,7 +91,8 @@ class CO2_sensor(object):
         self.port = port
         self.connect()
         return
-
+    
+    # sensor-specific setup
     def connect(self):
         """
         Connects to CO2 Sensor identified by Serial Number.
@@ -125,27 +124,14 @@ class CO2_sensor(object):
         self.sensor = serial.Serial(self.port, baudrate=9600, timeout=.5)
         return
 
-    # def read(self):
-    #     """
-    #     Read a single CO2 measurement from the sensor.
-
-    #     Returns
-    #     -------
-    #     float : ppm CO2
-    #     """
-    #     # time at start of measurement
-    #     tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
-
-    #     self.sensor.flushInput()
-    #     self.sensor.write(self.msg)
-    #     # read measurement from sensor
-    #     resp = self.sensor.read(7)
-    #     high = ord(resp[3])
-    #     low = ord(resp[4])
-    #     co2 = (high * 256.) + low
-    #     self.last_read = [tnow, co2]
-    #     return [tnow, co2]
-
+    def disconnect(self):
+        """
+        Close connection to sensor (shouldn't be necessary).
+        """
+        self.sensor.close()
+        return
+    
+    # data recording functions
     def read(self):
         """
         Read a single CO2 measurement from the sensor.
@@ -155,7 +141,7 @@ class CO2_sensor(object):
         float : ppm CO2
         """
         # time at start of measurement
-        tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
+        tnow = time_now()
 
         self.sensor.flushInput()
         msg = b"\xFE\x44\x00\x08\x02\x9F\x25"
@@ -165,8 +151,9 @@ class CO2_sensor(object):
         high = resp[3]
         low = resp[4]
         co2 = (high * 256.) + low
+
         self.last_read = [tnow, co2]
-        return [tnow, co2]
+        return self.last_read
 
     def read_multi(self, n, wait=2.):
         """
@@ -188,68 +175,83 @@ class CO2_sensor(object):
             # time at start of measurement
             out.append(self.read())
             time.sleep(wait)
+
         self.last_read = out
-        return out
+        return self.last_read
 
-    def write_batch(self, file='CO2.csv'):
+    def write_header(self, file):
         """
-        Append CO2 measurements to csv file with timestamp.
-
-        Adds a new lien to file containing: time,[CO2] * n
-
-        Parameters
-        ----------
-        file : str
-            Path to save file.
-        n : int
-            Number of measurements to make.
-        wait : float
-            Seconds between measurements
-
-        Returns
-        -------
-        None
+        Writes a file header for the measurements
         """
-        if not os.path.exists(file):
-            with open(file, 'a+') as f:
-                f.write('# {}# Time,CO2 (ppm)\n'.format(self.label))
-        # construct write_str
-        if isinstance(self.last_read[0], list):
-            Time = [r[0] for r in self.last_read]
-            CO2 = [r[1] for r in self.last_read]
-            CO2str = fmt([Time[0]] + CO2, 1, ',') + '\n'
-        else:
-            Time = self.last_read[0]
-            CO2 = self.last_read[1]
-            CO2str = Time + ',' + fmt(CO2, 1) + '\n'
-        # save and write out_str
-        self.write_str = CO2str
+        outstr = '# {:} (ID:{:})\n'.format(self.name, self.ID)
+        outstr += 'time,CO2\n'
+
         with open(file, 'a+') as f:
-            f.write(CO2str)
-        return
+            f.write(outstr)
 
-    def write(self, path):
+    def write(self, file):
+        """
+        Write data to file.
+        """
         if not os.path.exists(file):
-            with open(file, 'a+') as f:
-                f.write('# {}# Time,CO2 (ppm)\n'.format(self.label))
-        # construct writing string
-        if isinstance(self.last_read[0], list):
-            out_str = ''
-            for r in self.last_read:
-                out_str += fmt(r, 1, ',') + '\n'
-        else:
-            out_str = fmt(self.last_read, 1, ',') + '\n'
-        # save and write
-        self.write_str = out_str
-        with open(path, 'a+') as f:
-            f.write(out_str)
+            self.write_header(file)
+        
+        out_str = fmt_lines(self.last_read)
+        with open(file, 'a+') as f:
+            f.write(out_str + '\n')
 
-    def disconnect(self):
-        """
-        Close connection to sensor (shouldn't be necessary).
-        """
-        self.sensor.close()
-        return
+    # def write_batch(self, file='CO2.csv'):
+    #     """
+    #     Append CO2 measurements to csv file with timestamp.
+
+    #     Adds a new lien to file containing: time,[CO2] * n
+
+    #     Parameters
+    #     ----------
+    #     file : str
+    #         Path to save file.
+    #     n : int
+    #         Number of measurements to make.
+    #     wait : float
+    #         Seconds between measurements
+
+    #     Returns
+    #     -------
+    #     None
+    #     """
+    #     if not os.path.exists(file):
+    #         with open(file, 'a+') as f:
+    #             f.write('# {}# Time,CO2 (ppm)\n'.format(self.label))
+    #     # construct write_str
+    #     if isinstance(self.last_read[0], list):
+    #         Time = [r[0] for r in self.last_read]
+    #         CO2 = [r[1] for r in self.last_read]
+    #         CO2str = fmt([Time[0]] + CO2, 1, ',') + '\n'
+    #     else:
+    #         Time = self.last_read[0]
+    #         CO2 = self.last_read[1]
+    #         CO2str = Time + ',' + fmt(CO2, 1) + '\n'
+    #     # save and write out_str
+    #     self.write_str = CO2str
+    #     with open(file, 'a+') as f:
+    #         f.write(CO2str)
+    #     return
+
+    # def write(self, path):
+    #     if not os.path.exists(file):
+    #         with open(file, 'a+') as f:
+    #             f.write('# {}# Time,CO2 (ppm)\n'.format(self.label))
+    #     # construct writing string
+    #     if isinstance(self.last_read[0], list):
+    #         out_str = ''
+    #         for r in self.last_read:
+    #             out_str += fmt(r, 1, ',') + '\n'
+    #     else:
+    #         out_str = fmt(self.last_read, 1, ',') + '\n'
+    #     # save and write
+    #     self.write_str = out_str
+    #     with open(path, 'a+') as f:
+    #         f.write(out_str)
 
 
 class O2_sensor(object):
@@ -314,6 +316,39 @@ class O2_sensor(object):
         print('*' * len(self.label) + '\n')
         return
 
+    def power_off(self):
+        """
+        Turn off the power to the meter (saves power).
+        """
+        print('Powering down O2 Meter ({})...'.format(self.ID))
+        self.sensor.write("#PDWN\r")
+        off_status = self.sensor.readline()
+
+        if 'PDWN' in off_status:
+            print('  Power Off.')
+        elif 'ERR' in off_status:
+            print('Power-off error: {}'.format(off_status.rstrip()))
+        else:
+            print('Something went wrong during power-off.\n  -> Sensor returned {}'.format(off_status))
+        return
+
+    def power_on(self, wait=0.2):
+        """
+        Tun on the power to the meter.
+        """
+        print('Powering up O2 Meter ({})...'.format(self.ID))
+        self.sensor.write("#PWUP\r")
+        on_status = self.sensor.readline()
+        time.sleep(wait)
+
+        if 'PWUP' in on_status:
+            print('  Ready!')
+        elif 'ERR' in on_status:
+            print('Power-on error: {}'.format(on_status.rstrip()))
+        else:
+            print('Something went wrong during power-on.\n  -> Sensor returned {}'.format(on_status))
+        return
+
     def read(self, P=1013000, S=35000):
         """
         Measure variables from sensor
@@ -344,8 +379,8 @@ class O2_sensor(object):
             13: percentO2 (e-3 %O2)
         """
         # get time at start of measurement
-        tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
-
+        tnow = time_now()
+        
         # measure Temp
         self.sensor.write('TMP 1\r')
         self.sensor.readline()
@@ -372,7 +407,7 @@ class O2_sensor(object):
         res = [int(r) for r in res.split(' ')]
 
         self.last_read = [tnow] + res
-        return [tnow] + res
+        return self.last_read
 
     def read_multi(self, n, wait=1., P=1013000, S=35000):
         """
@@ -412,7 +447,28 @@ class O2_sensor(object):
             out.append(self.read(P=P, S=S))
             time.sleep(wait)
         self.last_read = out
-        return out
+        return self.last_read
+    
+    def write_header(self, file):
+        """
+        Writes a file header for the measurements
+        """
+        outstr = '# {:} (ID:{:})\n'.format(self.name, self.ID)
+        outstr += 'time,status,dphi,umolar,mbar,airSat,tempSample,tempCase,signalIntensity,ambientLight,pressure,humidity,resistorTemp,percentO2\n'
+
+        with open(file, 'a+') as f:
+            f.write(outstr)
+
+    def write(self, file):
+        """
+        Write data to file.
+        """
+        if not os.path.exists(file):
+            self.write_header(file)
+        
+        out_str = fmt_lines(self.last_read)
+        with open(file, 'a+') as f:
+            f.write(out_str + '\n')
 
     # def write_TempO2_batch(self, Tpath='Temp.csv', O2path='O2.csv', mode='water'):
     #     """
@@ -464,59 +520,26 @@ class O2_sensor(object):
     #         of.write(O2str)
     #     return
 
-    def write(self, path):
-        """
-        Write last read data to file.
-        """
-        # if file doesn't already exist, write column names in a header
-        if not os.path.exists(path):
-            with open(path, 'a+') as f:
-                f.write('# {}# time,status,dphi,umolar,mbar,airSat,tempSample,tempCase,signalIntensity,ambientLight,pressure,humidity,resistorTemp,percentO2\n'.format(self.label))
-        # generate out_str
-        if isinstance(self.last_read[0], list):
-            out_str = ''
-            for r in self.last_read:
-                out_str += fmt(r, 1, ',') + '\n'
-        else:
-            out_str = fmt(self.last_read, 1, ',') + '\n'
-        # write and save data
-        self.write_str = out_str
-        with open(path, 'a+') as f:
-            f.write(out_str)
-        return
-
-    def power_off(self):
-        """
-        Turn off the power to the meter (saves power).
-        """
-        print('Powering down O2 Meter ({})...'.format(self.ID))
-        self.sensor.write("#PDWN\r")
-        off_status = self.sensor.readline()
-
-        if 'PDWN' in off_status:
-            print('  Power Off.')
-        elif 'ERR' in off_status:
-            print('Power-off error: {}'.format(off_status.rstrip()))
-        else:
-            print('Something went wrong during power-off.\n  -> Sensor returned {}'.format(off_status))
-        return
-
-    def power_on(self, wait=0.2):
-        """
-        Tun on the power to the meter.
-        """
-        print('Powering up O2 Meter ({})...'.format(self.ID))
-        self.sensor.write("#PWUP\r")
-        on_status = self.sensor.readline()
-        time.sleep(wait)
-
-        if 'PWUP' in on_status:
-            print('  Ready!')
-        elif 'ERR' in on_status:
-            print('Power-on error: {}'.format(on_status.rstrip()))
-        else:
-            print('Something went wrong during power-on.\n  -> Sensor returned {}'.format(on_status))
-        return
+    # def write(self, path):
+    #     """
+    #     Write last read data to file.
+    #     """
+    #     # if file doesn't already exist, write column names in a header
+    #     if not os.path.exists(path):
+    #         with open(path, 'a+') as f:
+    #             f.write('# {}# time,status,dphi,umolar,mbar,airSat,tempSample,tempCase,signalIntensity,ambientLight,pressure,humidity,resistorTemp,percentO2\n'.format(self.label))
+    #     # generate out_str
+    #     if isinstance(self.last_read[0], list):
+    #         out_str = ''
+    #         for r in self.last_read:
+    #             out_str += fmt(r, 1, ',') + '\n'
+    #     else:
+    #         out_str = fmt(self.last_read, 1, ',') + '\n'
+    #     # write and save data
+    #     self.write_str = out_str
+    #     with open(path, 'a+') as f:
+    #         f.write(out_str)
+    #     return
 
 
 class pH_sensor(object):
@@ -569,7 +592,7 @@ class pH_sensor(object):
         [time, pH voltage, probe temperature voltage, LabJack temperature Kelvin]
         """
         # time at start of measurement
-        tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
+        tnow = time_now()
 
         # record bits from LabJack
         bLJ_temp, bpH_temp, bpH = self.sensor.getFeedback(self.comm['LJTemp'], self.comm['Temp'], self.comm['pH'])
@@ -598,3 +621,24 @@ class pH_sensor(object):
             time.sleep(wait)
         self.last_read = out
         return out
+    
+    def write_header(self, file):
+        """
+        Writes a file header for the measurements
+        """
+        outstr = '# pH measurements via LabJack U6-Pro (GainIndex:{:.0f})\n'.format(self.gainindex)
+        outstr += 'time,pH,tempProbe,tempLabjack\n'
+
+        with open(file, 'a+') as f:
+            f.write(outstr)
+
+    def write(self, file):
+        """
+        Write data to file.
+        """
+        if not os.path.exists(file):
+            self.write_header(file)
+        
+        out_str = fmt_lines(self.last_read)
+        with open(file, 'a+') as f:
+            f.write(out_str + '\n')

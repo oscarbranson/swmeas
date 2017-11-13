@@ -133,7 +133,7 @@ def fmt_lines(a, fmt_str="{:.2f}", sep=','):
         return sep.join(f)
     else:
         return '\n'.join([sep.join(r) for r in f])
-    
+
 ## Misc Helpers
 def time_now():
     """
