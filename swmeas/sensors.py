@@ -2,7 +2,7 @@ import serial
 import time
 import random
 import os
-import u6
+import u6  # labjack module
 from builtins import bytes, range  # for python 2/3 compatability
 from .helpers import time_now, fmt_lines
 from .utils import portscan, find_sensor, get_sensor_name
@@ -16,8 +16,7 @@ class dummy_sensor(object):
         self.name = 'Dummy Sensor'
         self.port = 'aport'
         self.last_read = None
-        return
-    
+
     def read(self):
         """
         Read a single measurement from the sensor.
@@ -31,11 +30,11 @@ class dummy_sensor(object):
 
         # make up some data
         data = [random.gauss(4, .5), random.gauss(4, .5), random.gauss(4, .5)]
-        
+
         # store and return result
         self.last_read = [tnow] + data
         return self.last_read
-    
+
     def read_multi(self, n, wait=2.):
         """
         Read multiple CO2 measurements from sensor.
@@ -57,7 +56,7 @@ class dummy_sensor(object):
             time.sleep(wait)
         self.last_read = out
         return self.last_read
-    
+
     def write_header(self, file):
         with open(file, 'a+') as f:
             f.write('Time,data1,data2,data3\n')
@@ -65,11 +64,10 @@ class dummy_sensor(object):
     def write(self, file):
         if not os.path.exists(file):
             self.write_header(file)
-        
+
         out_str = fmt_lines(self.last_read)
         with open(file, 'a+') as f:
             f.write(out_str + '\n')
-        
 
 
 class CO2_sensor(object):
@@ -89,9 +87,9 @@ class CO2_sensor(object):
         self.ID = ID
         self.name = name
         self.port = port
+        self.last_read = None
         self.connect()
-        return
-    
+
     # sensor-specific setup
     def connect(self):
         """
@@ -130,7 +128,7 @@ class CO2_sensor(object):
         """
         self.sensor.close()
         return
-    
+
     # data recording functions
     def read(self):
         """
@@ -195,7 +193,7 @@ class CO2_sensor(object):
         """
         if not os.path.exists(file):
             self.write_header(file)
-        
+
         out_str = fmt_lines(self.last_read)
         with open(file, 'a+') as f:
             f.write(out_str + '\n')
@@ -215,6 +213,7 @@ class O2_sensor(object):
         self.ID = ID
         self.port = port
         self.name = name
+        self.last_read = None
         self.connect()
 
     def connect(self):
@@ -327,7 +326,7 @@ class O2_sensor(object):
         """
         # get time at start of measurement
         tnow = time_now()
-        
+
         # measure Temp
         self.sensor.write('TMP 1\r')
         self.sensor.readline()
@@ -395,7 +394,7 @@ class O2_sensor(object):
             time.sleep(wait)
         self.last_read = out
         return self.last_read
-    
+
     def write_header(self, file):
         """
         Writes a file header for the measurements
@@ -412,7 +411,7 @@ class O2_sensor(object):
         """
         if not os.path.exists(file):
             self.write_header(file)
-        
+
         out_str = fmt_lines(self.last_read)
         with open(file, 'a+') as f:
             f.write(out_str + '\n')
@@ -497,7 +496,7 @@ class pH_sensor(object):
             time.sleep(wait)
         self.last_read = out
         return out
-    
+
     def write_header(self, file):
         """
         Writes a file header for the measurements
@@ -514,7 +513,7 @@ class pH_sensor(object):
         """
         if not os.path.exists(file):
             self.write_header(file)
-        
+
         out_str = fmt_lines(self.last_read)
         with open(file, 'a+') as f:
             f.write(out_str + '\n')
