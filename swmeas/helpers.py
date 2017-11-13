@@ -1,10 +1,60 @@
-import sys
-import os
-import json
-import datetime as dt
-from dateutil import parser
-from serial.tools import list_ports
+import time
 
+## Output functions
+def fmt(a, fmt_str="{:.3f}"):
+    """
+    Recursively format all elements of `a` according to `fmt_str`.
+
+    Strings are returned as-is, with no modification.
+
+    Parameters
+    ----------
+    a : str, numeric or iterable
+    fmt_str : str
+        Valid formatting string, default is `"{:.3f}"`
+    
+    Returns
+    -------
+    list of formatted values
+    """
+    if isinstance(a, str):
+        return a
+    elif isinstance(a, (int, float)):
+        return fmt_str.format(a)
+    else:
+        return [fmt(i, fmt_str) for i in a]
+
+def fmt_lines(a, fmt_str="{:.2f}", sep=','):
+    """
+    Format output as lines of text.
+    
+    Parameters
+    ----------
+    a : iterable
+        Data to format.
+    fmt_str : str
+        Format specification for numbers.
+    sep : str
+        Character used to separate data
+    
+    Returns
+    -------
+    str
+        formatted data.
+    """
+    f = fmt(a, fmt_str)
+    if isinstance(f[0], str):
+        return sep.join(f)
+    else:
+        return '\n'.join([sep.join(r) for r in f])
+
+## Misc Helpers
+def time_now():
+    """
+    Return the current time as a formatted str (to nearest 0.1 second).
+    """
+    tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
+    return tnow + '{:.1f}'.format(time.time() % 1)[-2:]
 
 # Helper functions
 # def fmt(x, dec=1, sep=None):
@@ -85,63 +135,6 @@ from serial.tools import list_ports
 #         ndir = directory + '/' + now.strftime(fmt)
 #         os.mkdir(ndir)
 #         return ndir
-
-## Output functions
-def fmt(a, fmt_str="{:.3f}"):
-    """
-    Recursively format all elements of `a` according to `fmt_str`.
-
-    Strings are returned as-is, with no modification.
-
-    Parameters
-    ----------
-    a : str, numeric or iterable
-    fmt_str : str
-        Valid formatting string, default is `"{:.3f}"`
-    
-    Returns
-    -------
-    list of formatted values
-    """
-    if isinstance(a, str):
-        return a
-    elif isinstance(a, (int, float)):
-        return fmt_str.format(a)
-    else:
-        return [fmt(i, fmt_str) for i in a]
-
-def fmt_lines(a, fmt_str="{:.2f}", sep=','):
-    """
-    Format output as lines of text.
-    
-    Parameters
-    ----------
-    a : iterable
-        Data to format.
-    fmt_str : str
-        Format specification for numbers.
-    sep : str
-        Character used to separate data
-    
-    Returns
-    -------
-    str
-        formatted data.
-    """
-    f = fmt(a, fmt_str)
-    if isinstance(f[0], str):
-        return sep.join(f)
-    else:
-        return '\n'.join([sep.join(r) for r in f])
-
-## Misc Helpers
-def time_now():
-    """
-    Return the current time as a formatted str (to nearest 0.1 second).
-    """
-    tnow = time.strftime('%Y-%m-%d-%H:%M:%S', time.localtime())
-    return tnow + '{:.1f}'.format(time.time() % 1)[-2:]
-
 
 if __name__ == "__main__":
     print('Nothing to see here...')
