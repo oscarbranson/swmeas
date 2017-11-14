@@ -194,7 +194,7 @@ class CO2_sensor(object):
         if not os.path.exists(file):
             self.write_header(file)
 
-        out_str = fmt_lines(self.last_read)
+        out_str = fmt_lines(self.last_read, '{:}')
         with open(file, 'a+') as f:
             f.write(out_str + '\n')
 
@@ -399,7 +399,7 @@ class O2_sensor(object):
         """
         Writes a file header for the measurements
         """
-        outstr = '# {:} (ID:{:})\n'.format(self.name, self.ID)
+        outstr = '# O2 Sensor {:} (ID:{:})\n'.format(self.name, self.ID)
         outstr += 'time,status,dphi,umolar,mbar,airSat,tempSample,tempCase,signalIntensity,ambientLight,pressure,humidity,resistorTemp,percentO2\n'
 
         with open(file, 'a+') as f:
@@ -412,7 +412,7 @@ class O2_sensor(object):
         if not os.path.exists(file):
             self.write_header(file)
 
-        out_str = fmt_lines(self.last_read)
+        out_str = fmt_lines(self.last_read, '{:}')
         with open(file, 'a+') as f:
             f.write(out_str + '\n')
 
@@ -514,6 +514,6 @@ class pH_sensor(object):
         if not os.path.exists(file):
             self.write_header(file)
 
-        out_str = fmt_lines(self.last_read)
+        out_str = fmt_lines(self.last_read, '{:}')
         with open(file, 'a+') as f:
             f.write(out_str + '\n')
