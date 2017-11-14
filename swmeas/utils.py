@@ -2,6 +2,7 @@ import sys, os, json
 from dateutil import parser
 from subprocess import check_output
 from serial.tools import list_ports
+from pkg_resources import resource_string
 
 ## Control Utilities
 def check_usb_mounted():
@@ -66,10 +67,10 @@ def load_sensor_IDs(SNs_json=None):
     dict
     """
     if SNs_json is None:
-        SNs_json = os.path.dirname(sys.modules['swmeas'].__file__) + '/resources/sensor_SNs.json'
-
-    with open(SNs_json, 'r') as f:
-        sensor_dict = json.load(f)
+        sensor_dict = eval(resource_string('swmeas', '/resources/sensor_SNs.json'))
+    else:
+        with open(SNs_json, 'r') as f:
+            sensor_dict = json.load(f)
 
     return sensor_dict
 

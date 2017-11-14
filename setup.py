@@ -14,5 +14,6 @@ setup(name='swmeas',
                    'Programming Language :: Python :: 2',
                    'Programming Language :: Python :: 3'],
       install_requires=['pyserial>=3.3'],
-      package_data={'swmeas': ['resources/*', 'systemd-services/*', 'rpi_scripts/*']},
+      include_package_data=True,
+      package_data={'swmeas': ['resources/*']},
       zip_safe=True)
