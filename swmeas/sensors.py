@@ -268,7 +268,7 @@ class O2_sensor(object):
         """
         print('Powering down O2 Meter ({})...'.format(self.ID))
         self.sensor.write(b"#PDWN\r")
-        off_status = self.sensor.readline()
+        off_status = self.sensor.readline().decode()
 
         if 'PDWN' in off_status:
             print('  Power Off.')
@@ -284,7 +284,7 @@ class O2_sensor(object):
         """
         print('Powering up O2 Meter ({})...'.format(self.ID))
         self.sensor.write(b"#PWUP\r")
-        on_status = self.sensor.readline()
+        on_status = self.sensor.readline().decode()
         time.sleep(wait)
 
         if 'PWUP' in on_status:
