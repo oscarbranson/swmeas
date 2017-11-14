@@ -181,7 +181,7 @@ class CO2_sensor(object):
         """
         Writes a file header for the measurements
         """
-        outstr = '# {:} (ID:{:})\n'.format(self.name, self.ID)
+        outstr = '# CO2 Meter {:} (ID:{:})\n'.format(self.name, self.ID)
         outstr += 'time,CO2\n'
 
         with open(file, 'a+') as f:
@@ -328,12 +328,12 @@ class O2_sensor(object):
         tnow = time_now()
 
         # measure Temp
-        self.sensor.write('TMP 1\r')
+        self.sensor.write(b'TMP 1\r')
         self.sensor.readline()
 
         # adjust environment parameters for O2 measurement
         envpar = 'ENV 1 -300000 {:.0f} {:.0f} \r'.format(P, S)
-        self.sensor.write(envpar)
+        self.sensor.write(envpar.encode())
         # Notes:
         #   T: -300000 uses last temperature measurement
         #   P: Ambient pressure in ubar (1000000 = 1 bar)
@@ -341,16 +341,16 @@ class O2_sensor(object):
         self.sensor.readline()
 
         # measure O2
-        self.sensor.write('MSR 1\r')
+        self.sensor.write(b'MSR 1\r')
         self.sensor.readline()
 
         # read all results
-        self.sensor.write('RAL 1\r')
-        res = self.sensor.readline()
+        self.sensor.write(b'RAL 1\r')
+        bres = self.sensor.readline()
 
         # format data
-        res = res.replace('RAL 1 ', '').rstrip()
-        res = [int(r) for r in res.split(' ')]
+        res = bres.decode().replace('RAL 1 ', '').rstrip()
+        res = [int(r) for r in res.split()]
 
         self.last_read = [tnow] + res
         return self.last_read
