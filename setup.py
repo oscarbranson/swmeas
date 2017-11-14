@@ -13,6 +13,6 @@ setup(name='swmeas',
                    'Intended Audience :: Science/Research',
                    'Programming Language :: Python :: 2',
                    'Programming Language :: Python :: 3'],
-      install_requires=['pyserial>=3.3', 'LabJackPytho'],
+      install_requires=['pyserial>=3.3'],
       package_data={'swmeas': ['resources/*', 'systemd-services/*', 'rpi_scripts/*']},
       zip_safe=True)
