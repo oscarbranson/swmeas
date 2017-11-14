@@ -13,7 +13,7 @@ setup(name='swmeas',
                    'Intended Audience :: Science/Research',
                    'Programming Language :: Python :: 2',
                    'Programming Language :: Python :: 3'],
-      install_requires=['pyserial>=3.3', 'dateutil'],
+      install_requires=['pyserial>=3.3', 'python-dateutil'],
       include_package_data=True,
       package_data={'swmeas': ['resources/*']},
       zip_safe=True)
