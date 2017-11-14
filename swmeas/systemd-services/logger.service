@@ -1,0 +1,12 @@
+[Unit]
+Description=Dummy Logger
+After=multi-user.target
+
+[Service]
+Type=idle
+Restart=always
+RestartSec=3
+ExecStart="/path/to/python path/to/script"
+
+[Install]
+WantedBy=multi-user.target
