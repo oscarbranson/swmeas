@@ -1,4 +1,5 @@
 import os, time
+from .helpers import time_now
 
 def log(Sensor, log_file, period=30., n_meas=5, n_wait=0.5,
         out_dir='/users/pi/log_data', usb_dir='/media/usb/log_data', usb_save=False):
@@ -40,9 +41,13 @@ def log(Sensor, log_file, period=30., n_meas=5, n_wait=0.5,
         out_paths.append([usb_dir + '/' + log_file])
     
     # write file header
+    tnow = time_now()
+    nlog = 'START NEW LOG ' + tnow
+    pad = '#' * len(nlog)
+    header = '\n'.join([pad, nlog, pad]) + '\n'
     for p in out_paths:
         with open(p, 'a+') as f:
-            f.write('#################\n# START NEW LOG #\n#################\n')
+            f.write(header)
 
     # ------------------------------------------
     # Logging
