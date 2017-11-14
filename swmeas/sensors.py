@@ -252,8 +252,8 @@ class O2_sensor(object):
                                     timeout=1)
 
         # Get device version
-        self.sensor.write("#VERS\r")
-        self.VERSION = self.sensor.readline().rstrip()
+        self.sensor.write(b"#VERS\r")
+        self.VERSION = self.sensor.readline().decode().rstrip()
         print('  Version: {}'.format(self.VERSION))
 
         # turn on power to CO2 Sensor
@@ -267,7 +267,7 @@ class O2_sensor(object):
         Turn off the power to the meter (saves power).
         """
         print('Powering down O2 Meter ({})...'.format(self.ID))
-        self.sensor.write("#PDWN\r")
+        self.sensor.write(b"#PDWN\r")
         off_status = self.sensor.readline()
 
         if 'PDWN' in off_status:
@@ -283,7 +283,7 @@ class O2_sensor(object):
         Tun on the power to the meter.
         """
         print('Powering up O2 Meter ({})...'.format(self.ID))
-        self.sensor.write("#PWUP\r")
+        self.sensor.write(b"#PWUP\r")
         on_status = self.sensor.readline()
         time.sleep(wait)
 
