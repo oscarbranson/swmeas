@@ -1,0 +1,12 @@
+[Unit]
+Description=O2 Logger
+After=multi-user.target
+
+[Service]
+Type=idle
+Restart=always
+RestartSec=3
+ExecStart="/usr/bin/python /home/pi/logging_scripts/log_O2.py"
+
+[Install]
+WantedBy=multi-user.target
