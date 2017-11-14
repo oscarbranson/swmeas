@@ -6,7 +6,7 @@ After=multi-user.target
 Type=idle
 Restart=always
 RestartSec=3
-ExecStart="/usr/bin/python /home/pi/logging_scripts/log_O2.py"
+ExecStart="/usr/bin/python /home/pi/swmeas/rpi_scripts/log_O2.py"
 
 [Install]
 WantedBy=multi-user.target
