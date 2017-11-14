@@ -1,3 +1,4 @@
+#! /usr/bin/python
 from swmeas.utils import check_usb_mounted
 from swmeas.sensors import O2_sensor as Sensor
 from swmeas.logger import log
