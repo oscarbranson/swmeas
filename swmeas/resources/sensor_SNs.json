@@ -3,6 +3,14 @@
     [
       "FT1HQ4GE", 
       1
+    ],
+    [
+      "FT08QSEC",
+      2
+    ],
+    [
+      "FTHBSQZ9",
+      3
     ]
   ], 
   "CO2_sensor_SNs": [
@@ -21,6 +29,18 @@
     [
       "FTHBSUFR",
       4
+    ],
+    [
+      "FT08M2BW",
+      5
+    ],
+    [
+      "FT08R5YM",
+      6
+    ],
+    [
+      "FT08CXTU",
+      7
     ]
   ]
 }
