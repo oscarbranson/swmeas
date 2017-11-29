@@ -440,8 +440,8 @@ class pH_sensor(object):
         self.last_read = None
         # define read commands
         self.comm = {'LJTemp': u6.AIN24(14),
-                     'pH': u6.AIN24(2, ResolutionIndex=12, GainIndex=self.gainindex),
-                     'Temp': u6.AIN24(0, ResolutionIndex=9, GainIndex=self.gainindex)}
+                     'pH': u6.AIN24(2, ResolutionIndex=12, GainIndex=self.gainindex, Differential=True),
+                     'Temp': u6.AIN24(0, ResolutionIndex=9, GainIndex=self.gainindex, Differential=True)}
 
     def connect(self):
         """
