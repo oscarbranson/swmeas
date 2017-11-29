@@ -433,15 +433,16 @@ class pH_sensor(object):
         The GainIndex used in recording measurements. See `u6.U6().getFeedback()`
         documentation.
     """
-    def __init__(self, GainIndex=0):
+    def __init__(self, GainIndex=0, Differential=True):
         self.connect()
         self.config = self.sensor.configU6()
         self.gainindex = GainIndex
+        self.differential = Differential
         self.last_read = None
         # define read commands
         self.comm = {'LJTemp': u6.AIN24(14),
-                     'pH': u6.AIN24(2, ResolutionIndex=12, GainIndex=self.gainindex, Differential=True),
-                     'Temp': u6.AIN24(0, ResolutionIndex=9, GainIndex=self.gainindex, Differential=True)}
+                     'pH': u6.AIN24(2, ResolutionIndex=12, GainIndex=self.gainindex, Differential=self.differential),
+                     'Temp': u6.AIN24(0, ResolutionIndex=9, GainIndex=self.gainindex, Differential=self.differential)}
 
     def connect(self):
         """
