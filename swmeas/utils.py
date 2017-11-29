@@ -42,7 +42,7 @@ def portscan(ID=None, silent=True):
         if not silent:
             print("\n\nAvailable ports:")
 
-    if not silent:
+    if not silent and (len(ports) > 0):
         # line lengths
         L1 = max(len(p[0]) for p in ports) + 5
         L2 = max(len(p[1]) for p in ports) + 5
@@ -50,6 +50,8 @@ def portscan(ID=None, silent=True):
         for p in ports:
             print(fmt_str.format(p[0], p[1], p[2]))
         # print('\nUse an ID that identifies one of these ports.\n\n')
+    else:
+        print('   Nothing Connected.')
     return None
 
 
