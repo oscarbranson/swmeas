@@ -13,7 +13,7 @@ out_dir = '/home/pi/log_data/'  # folder to save the data to
 log_file = 'log_O2_Temp.csv'  # log file name
 
 # shouldn't need to modify this
-usb_dir = '/home/usb/log_data'  # removable folder to save the data
+usb_dir = '/media/usb/log_data'  # removable folder to save the data
 
 # ------------------------------------------
 # Logging
