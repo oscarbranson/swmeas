@@ -38,7 +38,7 @@ def log(Sensor, log_file, period=30., n_meas=5, n_wait=0.5,
     if usb_save:
         if not os.path.isdir(usb_dir):
             os.mkdir(usb_dir)
-        out_paths.append([usb_dir + '/' + log_file])
+        out_paths.append(usb_dir + '/' + log_file)
 
     # write file header
     tnow = time_now()
