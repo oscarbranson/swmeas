@@ -7,7 +7,7 @@ from swmeas.logger import log
 # ------------------------------------------
 period = 20  # time between measurements, in seconds
 n_meas = 5  # repeat measurements per period
-n_wait = 0.5  # wait between repeat measurements
+n_wait = 1.5  # wait between repeat measurements
 
 out_dir = '/home/pi/log_data/'  # folder to save the data to
 log_file = 'log_CO2.csv'  # log file name
