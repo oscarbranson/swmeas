@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='swmeas',
-      version='0.1.0a',
+      version='0.2.0a',
       description='Tools monitoring seawater CO2, O2 and Temp.',
       url='https://github.com/oscarbranson/swmeas',
       author='Oscar Branson',
