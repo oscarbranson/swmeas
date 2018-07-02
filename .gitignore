@@ -8,3 +8,5 @@ swmeas.egg-info
 build/lib
 rpi_swmeas
 labjack/*
+*.img
+*.tar.gz
