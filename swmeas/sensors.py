@@ -505,7 +505,7 @@ class pH_CO2_sensor(object):
         Writes a file header for the measurements
         """
         outstr = '# pH and CO2 measurements via LabJack U6-Pro (GainIndex:{:.0f})\n'.format(self.gainindex)
-        outstr += 'time,pH,tempProbe,tempLabjack\n'
+        outstr += 'time,pH,tempProbe,CO2,tempLabjack\n'
 
         with open(file, 'a+') as f:
             f.write(outstr)
