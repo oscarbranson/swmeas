@@ -40,9 +40,16 @@ def log(Sensor, log_file, period=30., n_meas=5, n_wait=0.5,
             os.mkdir(usb_dir)
         out_paths.append(usb_dir + '/' + log_file)
 
+    if os.path.exists('~/header.info'):
+        with open('~/header.info', 'r') as f:
+            extra = '\n' + f.read()
+    else:
+        extra = ''
+
     # write file header
     tnow = time_now()
     nlog = 'START NEW LOG ' + tnow
+    nlog += extra
     pad = '#' * len(nlog)
     header = '\n'.join([pad, nlog, pad]) + '\n'
     for p in out_paths:
