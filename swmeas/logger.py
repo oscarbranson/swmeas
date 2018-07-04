@@ -48,9 +48,9 @@ def log(Sensor, log_file, period=30., n_meas=5, n_wait=0.5,
 
     # write file header
     tnow = time_now()
-    nlog = 'START NEW LOG ' + tnow
+    nlog = 'START NEW LOG ' + tnow + extra
     pad = '#' * len(nlog)
-    header = '\n'.join([pad, nlog, extra, pad]) + '\n'
+    header = '\n'.join([pad, nlog, pad]) + '\n'
     for p in out_paths:
         with open(p, 'a+') as f:
             f.write(header)
