@@ -40,8 +40,8 @@ def log(Sensor, log_file, period=30., n_meas=5, n_wait=0.5,
             os.mkdir(usb_dir)
         out_paths.append(usb_dir + '/' + log_file)
 
-    if os.path.exists('~/header.info'):
-        with open('~/header.info', 'r') as f:
+    if os.path.exists('/home/pi/header.info'):
+        with open('/home/pi/header.info', 'r') as f:
             extra = '\n' + f.read()
     else:
         extra = ''
