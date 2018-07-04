@@ -42,7 +42,7 @@ def log(Sensor, log_file, period=30., n_meas=5, n_wait=0.5,
 
     if os.path.exists('/home/pi/header.info'):
         with open('/home/pi/header.info', 'r') as f:
-            extra = '\n' + f.read()
+            extra = '\n' + f.read().strip()
     else:
         extra = ''
 
@@ -51,7 +51,6 @@ def log(Sensor, log_file, period=30., n_meas=5, n_wait=0.5,
     nlog = 'START NEW LOG ' + tnow
     pad = '#' * len(nlog)
     header = '\n'.join([pad, nlog, extra, pad]) + '\n'
-    header.replace('\n\n', '\n')
     for p in out_paths:
         with open(p, 'a+') as f:
             f.write(header)
